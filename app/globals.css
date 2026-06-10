@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg: #0A0A0A;
+  --surface: #1A1A1A;
+  --border: #E8E8E0;
+  --text-primary: #F5F5F0;
+  --text-secondary: #AAAAAA;
+  --accent: #FFFFFF;
+  --border-width: 3px;
+  --shadow-offset: 5px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Comic Neue', cursive;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Halftone background texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* All content above halftone */
+#root,
+main,
+header,
+footer,
+[class] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Comic panel border utility */
+.comic-panel {
+  border: var(--border-width) solid var(--border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--border);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.comic-panel:hover {
+  transform: translate(-2px, -4px);
+  box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 4px) 0 0 var(--border);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 0.05em;
+}
+
+code, pre, .mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Comic button style */
+.btn-comic {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 0.08em;
+  font-size: 1.1rem;
+  padding: 0.6rem 1.6rem;
+  border: 3px solid var(--border);
+  box-shadow: 4px 4px 0 0 var(--border);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-comic:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--border);
+}
+
+.btn-comic-white {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-comic-black {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+.btn-comic-outline {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+/* Star rating */
+.stars {
+  color: #FFD700;
+  font-size: 1.2rem;
+}
+
+/* Category badge */
+.badge {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border: 2px solid var(--border);
+  box-shadow: 2px 2px 0 var(--border);
+  text-transform: uppercase;
+}
+
+.badge-plugin { background: #1a1a1a; color: #F5F5F0; }
+.badge-asset  { background: #F5F5F0; color: #0A0A0A; }
+.badge-jasa   { background: #555; color: #F5F5F0; }
+
+/* Ink splatter animation */
+@keyframes inkSplatter {
+  0%   { clip-path: circle(0% at 50% 50%); opacity: 0; }
+  60%  { clip-path: circle(60% at 50% 50%); opacity: 1; }
+  100% { clip-path: circle(150% at 50% 50%); opacity: 1; }
+}
+
+.ink-reveal {
+  animation: inkSplatter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Stagger word reveal */
+@keyframes wordReveal {
+  0%   { opacity: 0; transform: translateY(20px) rotate(-2deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+}
+
+.word-reveal {
+  display: inline-block;
+  opacity: 0;
+  animation: wordReveal 0.4s ease forwards;
+}
+
+/* Comic panel scroll animation */
+@keyframes panelSlideIn {
+  0%   { opacity: 0; transform: translateX(-30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.panel-animate {
+  animation: panelSlideIn 0.5s ease forwards;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border: 2px solid var(--bg); }
+
+/* Selection */
+::selection { background: var(--accent); color: var(--bg); }
