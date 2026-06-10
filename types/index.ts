@@ -4,7 +4,7 @@ export interface Product {
   id: string
   slug: string
   name: string
-  description: string | null
+  description: string
   price: number
   category: ProductCategory
   images: string[]
