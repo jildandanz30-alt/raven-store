@@ -5,20 +5,23 @@ Minecraft Plugin & Asset Store — Premium seller platform.
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
-- **Auth**: Supabase Auth (Google OAuth)
-- **Database**: Supabase PostgreSQL
-- **Storage**: Supabase Storage
-- **Payment**: Midtrans
+- **Auth**: Clerk (Customer) & Password-based (Admin)
+- **Database**: Local JSON Storage (db.ts)
+- **Payment**: Manual Transfer (Dana, GoPay, QRIS)
 - **Deploy**: Railway
 - **Notif**: Discord Webhook
 
 ## Design System
 
-Comic Book / Manga — Black & White theme.
-- **Display Font**: Bangers
-- **Body Font**: Comic Neue
+Elegant Minimalist — Black, White, and Soft Melon Green.
+- **Display Font**: Plus Jakarta Sans
+- **Body Font**: Inter
 - **Mono Font**: JetBrains Mono
-- **Color**: #0A0A0A bg, #E8E8E0 border, #F5F5F0 text
+- **Colors**: 
+  - Background: `#050505`
+  - Surface: `#0f0f0f`
+  - Accent: `#2d4a3e` (Soft Melon Green)
+  - Accent Light: `#4ade80`
 
 ## Setup
 
@@ -33,50 +36,15 @@ cp .env.example .env.local
 npm run dev
 ```
 
-## Folder Structure
+## Admin Access
 
-```
-raven-store/
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx          # Root layout (fonts, loader)
-│   ├── page.tsx            # Homepage
-│   ├── globals.css         # Global styles + design tokens
-│   ├── login/              # Auth pages
-│   ├── products/           # Product listing + detail
-│   ├── dashboard/          # Member dashboard
-│   ├── cart/               # Shopping cart
-│   ├── checkout/           # Checkout flow
-│   └── api/                # Route handlers
-│       ├── auth/
-│       ├── products/
-│       ├── orders/
-│       ├── payment/midtrans/
-│       └── webhooks/discord/
-├── components/
-│   ├── ui/                 # Base design system components
-│   │   ├── ComicCard.tsx
-│   │   ├── ComicButton.tsx
-│   │   ├── ComicBadge.tsx
-│   │   └── PageLoader.tsx
-│   ├── layout/             # Layout wrappers
-│   ├── product/            # Product-specific components
-│   ├── order/              # Order-related components
-│   └── admin/              # Admin panel components
-├── lib/
-│   ├── supabase.ts         # Supabase client/server/admin
-│   ├── database.types.ts   # Generated DB types
-│   └── utils.ts            # Shared utilities
-├── types/
-│   └── index.ts            # TypeScript type definitions
-└── hooks/                  # Custom React hooks (future)
-```
+Admin panel can be accessed via a hidden route: `/[ADMIN_SECRET]/admin`
+Login using the password configured in `ADMIN_PASSWORD`.
 
-## Sesi Berikutnya
+## Key Features
 
-- [ ] Sesi 2: Navbar, Footer, layout halaman utama
-- [ ] Sesi 3: Product listing page + filter
-- [ ] Sesi 4: Auth (Google OAuth + Supabase)
-- [ ] Sesi 5: Dashboard member
-- [ ] Sesi 6: Cart + Checkout + Midtrans
-- [ ] Sesi 7: Admin panel
-- [ ] Sesi 8: Review system + Discord notif
+- **Elegant UI**: Modern design with smooth scroll animations.
+- **Secure Admin**: Password-protected admin panel without third-party dependencies.
+- **Clerk Auth**: Seamless customer login experience.
+- **Discord Integration**: Real-time notifications for orders and admin alerts.
+- **Product Catalog**: Easy management of plugins, assets, and services.

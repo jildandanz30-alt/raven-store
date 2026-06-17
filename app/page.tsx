@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import Navbar from '@/components/Navbar'
+import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/Footer'
 import HeroSection from '@/components/HeroSection'
 import ComicCard from '@/components/ComicCard'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
 import { getFeaturedProducts } from '@/lib/products'
+import { ArrowRight, Zap, Package, Globe, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Raven Store — Premium Minecraft Plugins & Assets',
@@ -14,22 +15,22 @@ export const metadata: Metadata = {
 
 const JASA_LIST = [
   {
-    emoji: '🔌',
+    icon: <Zap className="w-8 h-8 text-green-400" />,
     title: 'Pasang Add-on',
     price: 'Rp2.000 / add-on',
     desc: 'Install plugin & konfigurasi dasar ke server kamu. Cepat, rapi, dan terjamin.',
   },
   {
-    emoji: '📦',
+    icon: <Package className="w-8 h-8 text-blue-400" />,
     title: 'Pasang Resource Pack',
     price: 'Rp2.000',
     desc: 'Setup Behavior Pack + Resource Pack (Bedrock) ke server kamu dari nol.',
   },
   {
-    emoji: '🌐',
+    icon: <Globe className="w-8 h-8 text-purple-400" />,
     title: 'Buat Website Store',
     price: 'Custom',
-    desc: 'Website toko untuk server Minecraft kamu — desain komik, payment gateway, dan dashboard.',
+    desc: 'Website toko untuk server Minecraft kamu — desain modern, payment gateway, dan dashboard.',
   },
 ]
 
@@ -42,7 +43,7 @@ const HOW_TO_BUY = [
   {
     step: '02',
     title: 'Login & Checkout',
-    desc: 'Login pakai Google, lalu bayar via Midtrans — QRIS, transfer, dll.',
+    desc: 'Login pakai Clerk, lalu bayar via Midtrans — QRIS, transfer, dll.',
   },
   {
     step: '03',
@@ -60,82 +61,41 @@ export default async function HomePage() {
     <>
       <Navbar />
 
-      <main>
+      <main className="overflow-hidden">
         {/* HERO */}
         <HeroSection />
 
         {/* PRODUK UNGGULAN */}
-        <section style={{ padding: '5rem 1.5rem', maxWidth: 1200, margin: '0 auto' }}>
+        <section className="py-24 px-6 max-w-7xl mx-auto">
           <ScrollReveal>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-                marginBottom: '2.5rem',
-                flexWrap: 'wrap',
-                gap: 12,
-              }}
-            >
+            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
               <div>
-                <p style={{ color: '#AAAAAA', letterSpacing: '0.15em', fontSize: '0.85rem', marginBottom: 4 }}>
+                <p className="text-accent-light font-bold tracking-[0.2em] text-xs mb-3 uppercase">
                   ★ TERBARU & TERLARIS
                 </p>
-                <h2
-                  style={{
-                    fontFamily: 'Bangers, cursive',
-                    fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                    letterSpacing: '0.06em',
-                  }}
-                >
+                <h2 className="text-4xl md:text-5xl font-extrabold text-white">
                   Produk Unggulan
                 </h2>
               </div>
               <Link
                 href="/products"
-                className="comic-button-link"
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  letterSpacing: '0.08em',
-                  fontSize: '1rem',
-                  padding: '0.5rem 1.4rem',
-                  border: '3px solid #E8E8E0',
-                  boxShadow: '4px 4px 0 #E8E8E0',
-                  color: '#F5F5F0',
-                  textDecoration: 'none',
-                  background: '#1A1A1A',
-                  transition: 'transform 0.1s, box-shadow 0.1s',
-                }}
+                className="btn-elegant btn-outline group"
               >
-                Lihat Semua →
+                Lihat Semua <ArrowRight size={18} className="ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </ScrollReveal>
 
           {products.length === 0 ? (
-            <div
-              style={{
-                border: '3px solid #E8E8E0',
-                boxShadow: '5px 5px 0 #E8E8E0',
-                background: '#1A1A1A',
-                padding: '4rem',
-                textAlign: 'center',
-              }}
-            >
-              <p style={{ fontFamily: 'Bangers, cursive', fontSize: '1.5rem', color: '#AAAAAA' }}>
+            <div className="glass-card p-20 text-center border-dashed border-2">
+              <p className="text-zinc-500 text-xl font-medium">
                 Produk akan segera hadir!
               </p>
             </div>
           ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '1.5rem',
-              }}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product, i) => (
-                <ScrollReveal key={product.id} delay={i * 0.07}>
+                <ScrollReveal key={product.id} delay={i * 0.1}>
                   <ComicCard product={product} />
                 </ScrollReveal>
               ))}
@@ -143,210 +103,99 @@ export default async function HomePage() {
           )}
         </section>
 
-        {/* DIVIDER PANEL */}
-        <div
-          style={{
-            borderTop: '4px solid #E8E8E0',
-            borderBottom: '4px solid #E8E8E0',
-            padding: '1rem 1.5rem',
-            background: '#1A1A1A',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'Bangers, cursive',
-              fontSize: '1.1rem',
-              letterSpacing: '0.3em',
-              color: '#444',
-              animation: 'scroll-ticker 20s linear infinite',
-            }}
-          >
-            {Array(6).fill('⚡ PLUGIN PREMIUM · ASSET KEREN · JASA TERPERCAYA · RAVEN STORE ').join('')}
-          </p>
-          <style>{`
-            @keyframes scroll-ticker {
+        {/* MARQUEE / TICKER */}
+        <div className="py-8 bg-zinc-950 border-y border-white/5 overflow-hidden whitespace-nowrap">
+          <div className="inline-block animate-marquee">
+            {Array(10).fill(null).map((_, i) => (
+              <span key={i} className="mx-8 text-zinc-800 font-black text-2xl uppercase tracking-tighter">
+                ⚡ PLUGIN PREMIUM · ASSET KEREN · JASA TERPERCAYA · RAVEN STORE
+              </span>
+            ))}
+          </div>
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes marquee {
               0% { transform: translateX(0); }
               100% { transform: translateX(-50%); }
             }
-          `}</style>
+            .animate-marquee {
+              animation: marquee 30s linear infinite;
+              display: inline-block;
+            }
+          `}} />
         </div>
 
         {/* LAYANAN JASA */}
-        <section style={{ padding: '5rem 1.5rem' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <section className="py-24 px-6 relative">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
+          
+          <div className="max-w-7xl mx-auto">
             <ScrollReveal>
-              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                <p style={{ color: '#AAAAAA', letterSpacing: '0.15em', fontSize: '0.85rem', marginBottom: 4 }}>
+              <div className="text-center mb-16">
+                <p className="text-accent-light font-bold tracking-[0.2em] text-xs mb-3 uppercase">
                   💼 NEED HELP?
                 </p>
-                <h2
-                  style={{
-                    fontFamily: 'Bangers, cursive',
-                    fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                    letterSpacing: '0.06em',
-                  }}
-                >
+                <h2 className="text-4xl md:text-5xl font-extrabold text-white">
                   Layanan Jasa
                 </h2>
               </div>
             </ScrollReveal>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '1.5rem',
-              }}
-            >
-              {JASA_LIST.map(({ emoji, title, price, desc }, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {JASA_LIST.map(({ icon, title, price, desc }, i) => (
                 <ScrollReveal key={title} delay={i * 0.1}>
-                  <div
-                    className="comic-panel"
-                    style={{
-                      background: '#1A1A1A',
-                      padding: '1.8rem',
-                      height: '100%',
-                    }}
-                  >
-                    <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{emoji}</div>
-                    <h3
-                      style={{
-                        fontFamily: 'Bangers, cursive',
-                        fontSize: '1.5rem',
-                        letterSpacing: '0.05em',
-                        marginBottom: 4,
-                      }}
-                    >
-                      {title}
-                    </h3>
-                    <p
-                      style={{
-                        fontFamily: 'Bangers, cursive',
-                        fontSize: '1rem',
-                        color: '#AAAAAA',
-                        letterSpacing: '0.05em',
-                        marginBottom: 10,
-                      }}
-                    >
-                      {price}
-                    </p>
-                    <p style={{ color: '#AAAAAA', fontSize: '0.95rem', lineHeight: 1.6 }}>{desc}</p>
+                  <div className="glass-card p-8 h-full flex flex-col">
+                    <div className="mb-6 p-3 bg-zinc-900 w-fit rounded-2xl border border-white/5">
+                      {icon}
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
+                    <p className="text-accent-light font-bold text-sm mb-4">{price}</p>
+                    <p className="text-zinc-400 text-sm leading-relaxed">{desc}</p>
                   </div>
                 </ScrollReveal>
               ))}
             </div>
 
-            <ScrollReveal style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <ScrollReveal className="text-center mt-12">
               <Link
                 href="/jasa"
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  letterSpacing: '0.08em',
-                  fontSize: '1.1rem',
-                  padding: '0.7rem 2rem',
-                  border: '3px solid #E8E8E0',
-                  boxShadow: '5px 5px 0 #E8E8E0',
-                  color: '#0A0A0A',
-                  textDecoration: 'none',
-                  background: '#F5F5F0',
-                  display: 'inline-block',
-                }}
+                className="btn-elegant btn-accent py-4 px-10 text-lg"
               >
-                Order Jasa Sekarang →
+                Order Jasa Sekarang <ArrowRight size={20} className="ml-2" />
               </Link>
             </ScrollReveal>
           </div>
         </section>
 
         {/* CARA BELI */}
-        <section style={{ padding: '5rem 1.5rem', borderTop: '4px solid #E8E8E0' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <ScrollReveal style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <p style={{ color: '#AAAAAA', letterSpacing: '0.15em', fontSize: '0.85rem', marginBottom: 4 }}>
+        <section className="py-24 px-6 bg-zinc-950/50 border-y border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <ScrollReveal className="text-center mb-16">
+              <p className="text-accent-light font-bold tracking-[0.2em] text-xs mb-3 uppercase">
                 🛒 MUDAH BANGET!
               </p>
-              <h2
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                  letterSpacing: '0.06em',
-                }}
-              >
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white">
                 Cara Beli
               </h2>
             </ScrollReveal>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                gap: '1.5rem',
-                position: 'relative',
-              }}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
               {HOW_TO_BUY.map(({ step, title, desc }, i) => (
-                <ScrollReveal key={step} delay={i * 0.12}>
-                  <div
-                    style={{
-                      border: '3px solid #E8E8E0',
-                      boxShadow: '5px 5px 0 #E8E8E0',
-                      background: i % 2 === 1 ? '#F5F5F0' : '#1A1A1A',
-                      padding: '2rem',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {/* Big step number */}
-                    <div
-                      aria-hidden
-                      style={{
-                        position: 'absolute',
-                        right: '-0.5rem',
-                        bottom: '-1rem',
-                        fontFamily: 'Bangers, cursive',
-                        fontSize: '7rem',
-                        lineHeight: 1,
-                        color: i % 2 === 1 ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)',
-                        userSelect: 'none',
-                      }}
-                    >
+                <ScrollReveal key={step} delay={i * 0.1}>
+                  <div className="relative group">
+                    <div className="text-8xl font-black text-white/5 absolute -top-10 -left-4 select-none group-hover:text-accent/10 transition-colors">
                       {step}
                     </div>
-
-                    <div
-                      style={{
-                        fontFamily: 'Bangers, cursive',
-                        fontSize: '3rem',
-                        letterSpacing: '0.05em',
-                        color: i % 2 === 1 ? '#0A0A0A' : '#F5F5F0',
-                        marginBottom: 8,
-                        lineHeight: 1,
-                      }}
-                    >
-                      {step}
+                    <div className="relative z-10">
+                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-full bg-accent text-white text-sm flex items-center justify-center font-bold">
+                          {i + 1}
+                        </span>
+                        {title}
+                      </h3>
+                      <p className="text-zinc-400 leading-relaxed">
+                        {desc}
+                      </p>
                     </div>
-                    <h3
-                      style={{
-                        fontFamily: 'Bangers, cursive',
-                        fontSize: '1.4rem',
-                        letterSpacing: '0.05em',
-                        color: i % 2 === 1 ? '#0A0A0A' : '#F5F5F0',
-                        marginBottom: 8,
-                      }}
-                    >
-                      {title}
-                    </h3>
-                    <p
-                      style={{
-                        color: i % 2 === 1 ? '#333' : '#AAAAAA',
-                        fontSize: '0.95rem',
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {desc}
-                    </p>
                   </div>
                 </ScrollReveal>
               ))}
@@ -355,54 +204,20 @@ export default async function HomePage() {
         </section>
 
         {/* CTA BOTTOM */}
-        <section
-          style={{
-            padding: '5rem 1.5rem',
-            background: '#F5F5F0',
-            borderTop: '4px solid #E8E8E0',
-            borderBottom: '4px solid #E8E8E0',
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 700,
-              margin: '0 auto',
-              textAlign: 'center',
-            }}
-          >
+        <section className="py-32 px-6 relative overflow-hidden">
+          <div className="absolute inset-0 bg-accent/10 opacity-50 pointer-events-none" />
+          <div className="max-w-4xl mx-auto text-center relative z-10">
             <ScrollReveal>
-              <h2
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-                  letterSpacing: '0.05em',
-                  color: '#0A0A0A',
-                  lineHeight: 1.1,
-                  marginBottom: '1.5rem',
-                }}
-              >
-                SERVER KAMU SIAP NAIK LEVEL?
+              <h2 className="text-5xl md:text-7xl font-black text-white mb-8 leading-tight tracking-tighter">
+                SERVER KAMU SIAP <span className="text-accent-light">NAIK LEVEL?</span>
               </h2>
-              <p style={{ color: '#555', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+              <p className="text-zinc-400 text-xl mb-12 max-w-2xl mx-auto">
                 Jangan biarkan server kamu biasa-biasa saja. Upgrade sekarang dengan plugin dan asset
                 premium dari Raven Store!
               </p>
               <Link
                 href="/products"
-                className="comic-button-link-dark"
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  letterSpacing: '0.08em',
-                  fontSize: '1.3rem',
-                  padding: '0.8rem 2.5rem',
-                  border: '3px solid #0A0A0A',
-                  boxShadow: '6px 6px 0 #0A0A0A',
-                  color: '#F5F5F0',
-                  textDecoration: 'none',
-                  background: '#0A0A0A',
-                  display: 'inline-block',
-                  transition: 'transform 0.1s, box-shadow 0.1s',
-                }}
+                className="btn-elegant btn-primary py-5 px-12 text-xl shadow-[0_0_50px_-12px_rgba(255,255,255,0.3)]"
               >
                 BROWSE SEMUA PRODUK ⚡
               </Link>

@@ -2,11 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { LayoutDashboard, Package, ShoppingCart, LogOut, ShieldCheck } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: 'dashboard',  label: 'Dashboard', icon: '📊' },
-  { href: 'products',   label: 'Produk',    icon: '📦' },
-  { href: 'orders',     label: 'Orders',    icon: '🛒' },
+  { href: 'dashboard',  label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+  { href: 'products',   label: 'Produk',    icon: <Package size={20} /> },
+  { href: 'orders',     label: 'Orders',    icon: <ShoppingCart size={20} /> },
 ]
 
 export default function AdminSidebar({ adminSecret }: { adminSecret: string }) {
@@ -21,64 +23,24 @@ export default function AdminSidebar({ adminSecret }: { adminSecret: string }) {
   }
 
   return (
-    <aside
-      style={{
-        width: 220,
-        minHeight: '100vh',
-        background: '#1A1A1A',
-        borderRight: '3px solid #E8E8E0',
-        boxShadow: '4px 0 0 #E8E8E0',
-        display: 'flex',
-        flexDirection: 'column',
-        flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-        alignSelf: 'flex-start',
-        zIndex: 10,
-      }}
-    >
+    <aside className="w-64 min-h-screen bg-zinc-950 border-r border-white/5 flex flex-col sticky top-0 z-50">
       {/* Logo */}
-      <div
-        style={{
-          padding: '1.5rem 1.2rem',
-          borderBottom: '3px solid #333',
-        }}
-      >
-        <p
-          style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: '1.6rem',
-            letterSpacing: '0.1em',
-            lineHeight: 1,
-          }}
-        >
-          <span
-            style={{
-              background: '#F5F5F0',
-              color: '#0A0A0A',
-              padding: '0 6px',
-              border: '2px solid #E8E8E0',
-              boxShadow: '3px 3px 0 #E8E8E0',
-            }}
-          >
-            MC
-          </span>{' '}
-          ADMIN
-        </p>
-        <p
-          style={{
-            color: '#444',
-            fontSize: '0.72rem',
-            fontFamily: 'JetBrains Mono, monospace',
-            marginTop: 4,
-          }}
-        >
-          Control Panel
+      <div className="p-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-8 h-8 bg-accent flex items-center justify-center rounded-lg">
+            <ShieldCheck className="text-white" size={18} />
+          </div>
+          <span className="font-bold text-xl tracking-tight text-white">
+            RAVEN<span className="text-zinc-500 font-medium">ADMIN</span>
+          </span>
+        </div>
+        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.2em]">
+          Secure Control Panel
         </p>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '1rem 0' }}>
+      <nav className="flex-1 px-4 py-4 space-y-2">
         {NAV.map(({ href, label, icon }) => {
           const fullHref = `${base}/${href}`
           const isActive = pathname.startsWith(fullHref)
@@ -86,29 +48,19 @@ export default function AdminSidebar({ adminSecret }: { adminSecret: string }) {
             <Link
               key={href}
               href={fullHref}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '0.7rem 1.2rem',
-                fontFamily: 'Bangers, cursive',
-                letterSpacing: '0.08em',
-                fontSize: '1.05rem',
-                textDecoration: 'none',
-                color: isActive ? '#0A0A0A' : '#AAAAAA',
-                background: isActive ? '#F5F5F0' : 'transparent',
-                borderLeft: isActive ? '4px solid #E8E8E0' : '4px solid transparent',
-                boxShadow: isActive ? 'inset -4px 0 0 #E8E8E0' : 'none',
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.color = '#F5F5F0'
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.color = '#AAAAAA'
-              }}
+              className={cn(
+                "flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 group",
+                isActive 
+                  ? "bg-white text-black shadow-[0_0_20px_-5px_rgba(255,255,255,0.2)]" 
+                  : "text-zinc-500 hover:text-white hover:bg-white/5"
+              )}
             >
-              <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+              <span className={cn(
+                "transition-transform duration-200 group-hover:scale-110",
+                isActive ? "text-black" : "text-zinc-600 group-hover:text-accent-light"
+              )}>
+                {icon}
+              </span>
               {label}
             </Link>
           )
@@ -116,34 +68,13 @@ export default function AdminSidebar({ adminSecret }: { adminSecret: string }) {
       </nav>
 
       {/* Logout */}
-      <div style={{ padding: '1.2rem', borderTop: '2px solid #333' }}>
+      <div className="p-6 border-t border-white/5">
         <button
           onClick={handleLogout}
-          style={{
-            width: '100%',
-            fontFamily: 'Bangers, cursive',
-            letterSpacing: '0.08em',
-            fontSize: '0.95rem',
-            padding: '0.5rem',
-            border: '2px solid #555',
-            boxShadow: '2px 2px 0 #555',
-            background: 'transparent',
-            color: '#555',
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#ff4444'
-            e.currentTarget.style.boxShadow = '2px 2px 0 #ff4444'
-            e.currentTarget.style.color = '#ff6666'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = '#555'
-            e.currentTarget.style.boxShadow = '2px 2px 0 #555'
-            e.currentTarget.style.color = '#555'
-          }}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
         >
-          🚪 Logout
+          <LogOut size={18} />
+          Logout
         </button>
       </div>
     </aside>

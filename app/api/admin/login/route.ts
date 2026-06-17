@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   const { password, adminSecret } = await req.json()
 
   // Validate the URL segment matches env
-  const expectedSecret = process.env.ADMIN_SECRET_PATH ?? 'superadmin'
+  const expectedSecret = process.env.ADMIN_SECRET ?? 'ravens-nest'
   if (adminSecret !== expectedSecret) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }

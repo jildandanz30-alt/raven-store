@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { Star, MessageSquare, CheckCircle2, AlertCircle, Send, X, Package } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Review {
   id: string; product_id: string; rating: number; comment: string; created_at: string
@@ -13,16 +15,28 @@ interface PurchasedProduct {
 function Stars({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
   const [hover, setHover] = useState(0)
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+    <div className="flex items-center gap-1.5">
       {[1,2,3,4,5].map(s => (
-        <button key={s} type="button"
-          style={{ background:'none', border:'none', fontSize:28, color: s<=(hover||value)?'#f0a500':'#333', cursor:onChange?'pointer':'default', padding:'0 2px', lineHeight:1 }}
-          onMouseEnter={() => onChange && setHover(s)} onMouseLeave={() => onChange && setHover(0)}
-          onClick={() => onChange?.(s)}>★</button>
+        <button 
+          key={s} 
+          type="button"
+          className={cn(
+            "transition-all duration-200 p-0.5",
+            s <= (hover || value) ? "text-amber-400 scale-110" : "text-zinc-800",
+            onChange ? "cursor-pointer" : "cursor-default"
+          )}
+          onMouseEnter={() => onChange && setHover(s)} 
+          onMouseLeave={() => onChange && setHover(0)}
+          onClick={() => onChange?.(s)}
+        >
+          <Star size={onChange ? 28 : 16} fill={s <= (hover || value) ? "currentColor" : "none"} />
+        </button>
       ))}
-      {onChange && <span style={{ fontFamily:'Bangers,cursive', fontSize:16, color:'#888', marginLeft:8 }}>
-        {['','Poor','Fair','Good','Great','EPIC!'][value] || 'Select'}
-      </span>}
+      {onChange && (
+        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-3">
+          {['','Buruk','Cukup','Bagus','Keren','LUAR BIASA!'][value] || 'Pilih Rating'}
+        </span>
+      )}
     </div>
   )
 }
@@ -72,85 +86,155 @@ export default function ReviewsPage() {
     setSubmitting(false)
   }
 
-  const panel: React.CSSProperties = { border:'3px solid #2a2a2a', background:'#1A1A1A', padding:'1.2rem', marginBottom:'1rem' }
-
-  if (!isLoaded || loading) return <div style={{ color:'#555', padding:'2rem', fontFamily:'Bangers,cursive', fontSize:'1.5rem' }}>LOADING…</div>
+  if (!isLoaded || loading) return (
+    <div className="min-h-[400px] flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+    </div>
+  )
 
   return (
-    <div style={{ color:'#F5F5F0', fontFamily:'Comic Neue,cursive' }}>
-      <h1 style={{ fontFamily:'Bangers,cursive', fontSize:'2rem', letterSpacing:'0.1em', marginBottom:'1.5rem' }}>⭐ REVIEW SAYA</h1>
+    <div className="space-y-10">
+      <div>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-soft border border-accent/20 text-accent-light text-[10px] font-bold tracking-[0.2em] uppercase mb-4">
+          <Star size={12} />
+          TESTIMONIALS
+        </div>
+        <h1 className="text-4xl font-black text-white tracking-tighter">
+          REVIEW <span className="text-zinc-500">SAYA</span>
+        </h1>
+        <p className="text-zinc-500 text-sm font-medium mt-2">Bagikan pengalaman Anda menggunakan produk kami.</p>
+      </div>
 
-      {msg && <div style={{ padding:'0.75rem 1rem', marginBottom:'1rem', border:'2px solid #44dd88', color:'#44dd88', fontFamily:'Bangers,cursive' }}>{msg}</div>}
+      {msg && (
+        <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl animate-fade-in">
+          <CheckCircle2 className="text-green-500" size={18} />
+          <p className="text-green-500 text-sm font-bold">{msg}</p>
+        </div>
+      )}
 
       {/* Can review */}
       {canReview.length > 0 && (
-        <div style={{ ...panel, border:'3px solid #f0a500', boxShadow:'4px 4px 0 #f0a500', marginBottom:'2rem' }}>
-          <div style={{ fontFamily:'Bangers,cursive', fontSize:'1.1rem', color:'#f0a500', marginBottom:'1rem', letterSpacing:'0.08em' }}>
-            PRODUK YANG BISA KAMU REVIEW
-          </div>
-          {canReview.map(p => (
-            <div key={p.product_id} style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'0.6rem 0', borderBottom:'1px solid #222' }}>
-              {p.product_image
-                ? <img src={p.product_image} alt={p.product_name} style={{ width:40, height:40, objectFit:'cover', border:'2px solid #333' }} />
-                : <div style={{ width:40, height:40, background:'#222', border:'2px solid #333', display:'flex', alignItems:'center', justifyContent:'center' }}>📦</div>
-              }
-              <div style={{ flex:1 }}>
-                <div style={{ fontFamily:'Bangers,cursive', letterSpacing:'0.05em' }}>{p.product_name}</div>
-                <div style={{ color:'#555', fontSize:'0.75rem' }}>{p.product_category}</div>
+        <div className="glass-card p-8 bg-zinc-900/40 border-accent/20 shadow-[0_0_50px_-20px_rgba(144,238,144,0.15)]">
+          <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
+            <MessageSquare className="text-accent-light" size={20} />
+            Siap untuk di-Review
+          </h2>
+          <div className="space-y-4">
+            {canReview.map(p => (
+              <div key={p.product_id} className="flex items-center gap-5 p-4 bg-black/40 rounded-2xl border border-white/5 group hover:border-white/10 transition-all">
+                <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/5 flex-shrink-0">
+                  {p.product_image ? (
+                    <img src={p.product_image} alt={p.product_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-zinc-600">
+                      <Package size={20} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-white mb-0.5 truncate">{p.product_name}</h4>
+                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{p.product_category}</p>
+                </div>
+                <button 
+                  onClick={() => { setActiveProduct(p); setRating(0); setComment(''); setMsg('') }}
+                  className="btn-elegant btn-primary py-2.5 px-6 text-[10px]"
+                >
+                  TULIS REVIEW
+                </button>
               </div>
-              <button onClick={() => { setActiveProduct(p); setRating(0); setComment(''); setMsg('') }}
-                style={{ fontFamily:'Bangers,cursive', padding:'5px 14px', border:'2px solid #f0a500', color:'#f0a500', background:'none', cursor:'pointer', letterSpacing:'0.06em' }}>
-                TULIS REVIEW
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {/* Review form */}
       {activeProduct && (
-        <div style={{ ...panel, border:'3px solid #E8E8E0', boxShadow:'5px 5px 0 #E8E8E0', marginBottom:'2rem' }}>
-          <div style={{ fontFamily:'Bangers,cursive', fontSize:'1.1rem', letterSpacing:'0.08em', marginBottom:'1rem' }}>
-            REVIEW — {activeProduct.product_name.toUpperCase()}
+        <div className="glass-card p-8 bg-zinc-900/40 border-white/10 animate-fade-in">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-bold text-white">Review — {activeProduct.product_name}</h2>
+            <button onClick={() => setActiveProduct(null)} className="p-2 text-zinc-600 hover:text-white transition-colors">
+              <X size={20} />
+            </button>
           </div>
-          <Stars value={rating} onChange={setRating} />
-          <textarea value={comment} onChange={e => setComment(e.target.value)}
-            placeholder="Ceritain pengalaman kamu pakai produk ini…"
-            style={{ width:'100%', marginTop:'0.8rem', padding:'0.75rem', background:'#111', border:'2px solid #333', color:'#F5F5F0', fontFamily:'Comic Neue,cursive', fontSize:'0.9rem', minHeight:100, resize:'vertical', boxSizing:'border-box' }} />
-          <div style={{ display:'flex', gap:'0.5rem', marginTop:'0.75rem' }}>
-            <button onClick={handleSubmit} disabled={submitting||rating===0}
-              style={{ fontFamily:'Bangers,cursive', padding:'8px 20px', background:'#F5F5F0', border:'3px solid #E8E8E0', boxShadow:'3px 3px 0 #E8E8E0', cursor:'pointer', letterSpacing:'0.08em', opacity:rating===0?0.5:1 }}>
-              {submitting ? 'SUBMITTING…' : 'KIRIM REVIEW'}
-            </button>
-            <button onClick={() => setActiveProduct(null)}
-              style={{ fontFamily:'Bangers,cursive', padding:'8px 20px', border:'2px solid #444', color:'#888', background:'none', cursor:'pointer', letterSpacing:'0.06em' }}>
-              BATAL
-            </button>
+          
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Rating Produk</label>
+              <Stars value={rating} onChange={setRating} />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Pengalaman Anda</label>
+              <textarea 
+                value={comment} 
+                onChange={e => setComment(e.target.value)}
+                placeholder="Ceritain pengalaman kamu pakai produk ini…"
+                className="w-full bg-black/40 border border-white/10 text-white rounded-2xl py-4 px-5 outline-none focus:border-accent transition-all resize-none h-32 text-sm"
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <button 
+                onClick={handleSubmit} 
+                disabled={submitting || rating === 0}
+                className="flex-1 btn-elegant btn-primary py-4 text-sm group"
+              >
+                {submitting ? (
+                  <div className="w-5 h-5 border-3 border-black/20 border-t-black rounded-full animate-spin mx-auto" />
+                ) : (
+                  <span className="flex items-center justify-center gap-3">
+                    Kirim Review <Send size={16} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  </span>
+                )}
+              </button>
+              <button 
+                onClick={() => setActiveProduct(null)}
+                className="btn-elegant btn-outline py-4 px-8 text-sm"
+              >
+                Batal
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Existing reviews */}
-      <div style={{ fontFamily:'Bangers,cursive', fontSize:'1.1rem', letterSpacing:'0.08em', marginBottom:'1rem' }}>
-        REVIEW YANG SUDAH DIKIRIM ({reviews.length})
-      </div>
-      {reviews.length === 0 ? (
-        <div style={{ ...panel, color:'#555', textAlign:'center', padding:'2rem' }}>Belum ada review.</div>
-      ) : (
-        reviews.map(r => (
-          <div key={r.id} style={panel}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'0.5rem' }}>
-              <div>
-                <div style={{ fontFamily:'Bangers,cursive', letterSpacing:'0.05em' }}>{r.product_name ?? 'Produk'}</div>
-                <div style={{ color:'#555', fontSize:'0.75rem' }}>{r.product_category}</div>
-              </div>
-              <span style={{ color:'#555', fontSize:'0.75rem' }}>{new Date(r.created_at).toLocaleDateString('id-ID')}</span>
-            </div>
-            <Stars value={r.rating} />
-            {r.comment && <p style={{ marginTop:'0.5rem', color:'#AAAAAA', fontSize:'0.9rem' }}>{r.comment}</p>}
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-white flex items-center gap-3">
+          Review yang Sudah Dikirim
+          <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] font-bold text-zinc-600 border border-white/5">
+            {reviews.length}
+          </span>
+        </h2>
+        
+        {reviews.length === 0 ? (
+          <div className="glass-card p-20 text-center border-dashed border-2 border-white/5">
+            <p className="text-zinc-600 font-medium">Anda belum pernah mengirim review.</p>
           </div>
-        ))
-      )}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {reviews.map(r => (
+              <div key={r.id} className="glass-card p-6 bg-zinc-900/40 border-white/5 flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-bold text-white mb-0.5">{r.product_name ?? 'Produk'}</h4>
+                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{r.product_category}</p>
+                  </div>
+                  <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest">
+                    {new Date(r.created_at).toLocaleDateString('id-ID')}
+                  </span>
+                </div>
+                <Stars value={r.rating} />
+                {r.comment && (
+                  <p className="text-sm text-zinc-400 leading-relaxed italic bg-black/20 p-4 rounded-xl border border-white/5">
+                    "{r.comment}"
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

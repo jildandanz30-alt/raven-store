@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
 
 export default function AdminLoginForm({ adminSecret }: { adminSecret: string }) {
   const [password, setPassword] = useState('')
@@ -17,6 +18,7 @@ export default function AdminLoginForm({ adminSecret }: { adminSecret: string })
 
     try {
       const res = await fetch('/api/admin/login', {
+        // Karena route ini butuh adminSecret di body sesuai route.ts yang kita lihat tadi
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, adminSecret }),
@@ -35,139 +37,70 @@ export default function AdminLoginForm({ adminSecret }: { adminSecret: string })
     }
   }
 
-  const inputBase: React.CSSProperties = {
-    width: '100%',
-    background: '#111',
-    color: '#F5F5F0',
-    border: '3px solid #333',
-    padding: '0.85rem 1rem',
-    fontFamily: 'JetBrains Mono, monospace',
-    fontSize: '1rem',
-    outline: 'none',
-    letterSpacing: '0.15em',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.15s',
-  }
-
   return (
-    <div
-      style={{
-        border: '3px solid #E8E8E0',
-        boxShadow: '6px 6px 0 #E8E8E0',
-        background: '#1A1A1A',
-        padding: '2.5rem',
-      }}
-    >
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label
-          style={{
-            fontFamily: 'Bangers, cursive',
-            letterSpacing: '0.1em',
-            fontSize: '1rem',
-            color: '#AAAAAA',
-            display: 'block',
-            marginBottom: 8,
-          }}
-        >
-          Admin Password
-        </label>
-        <div style={{ position: 'relative' }}>
-          <input
-            type={showPw ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            placeholder="••••••••••••"
-            style={inputBase}
-            onFocus={(e) => (e.target.style.borderColor = '#E8E8E0')}
-            onBlur={(e) => (e.target.style.borderColor = '#333')}
-            autoComplete="current-password"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPw((v) => !v)}
-            style={{
-              position: 'absolute',
-              right: 12,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              color: '#555',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-          >
-            {showPw ? '🙈' : '👁'}
-          </button>
+    <div className="glass-card p-10 bg-zinc-900/40 border-white/5 max-w-md w-full mx-auto">
+      <div className="flex justify-center mb-8">
+        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+          <Lock className="text-white" size={32} />
         </div>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div
-          style={{
-            border: '2px solid #ff4444',
-            padding: '0.6rem 1rem',
-            marginBottom: '1.2rem',
-            background: 'rgba(255,68,68,0.08)',
-          }}
+      <h2 className="text-2xl font-bold text-white text-center mb-2">Admin Access</h2>
+      <p className="text-zinc-500 text-center text-sm mb-8 font-medium">Masukkan password untuk mengelola Raven Store.</p>
+
+      <div className="space-y-6">
+        <div>
+          <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 ml-1">
+            Admin Password
+          </label>
+          <div className="relative group">
+            <input
+              type={showPw ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              placeholder="••••••••••••"
+              className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 outline-none focus:border-accent transition-all font-mono tracking-widest"
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors"
+            >
+              {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <ShieldAlert className="text-red-500 flex-shrink-0" size={18} />
+            <p className="text-red-500 text-sm font-bold">
+              {error}
+            </p>
+          </div>
+        )}
+
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !password}
+          className="w-full btn-elegant btn-primary py-4 text-lg disabled:opacity-50"
         >
-          <p
-            style={{
-              color: '#ff6666',
-              fontFamily: 'Bangers, cursive',
-              letterSpacing: '0.06em',
-              fontSize: '0.95rem',
-            }}
-          >
-            ✕ {error}
+          {loading ? (
+            <div className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full animate-spin" />
+          ) : (
+            'Akses Dashboard'
+          )}
+        </button>
+
+        <div className="pt-6 text-center border-t border-white/5">
+          <p className="text-[10px] text-zinc-700 font-mono uppercase tracking-widest">
+            Unauthorized access will be logged and reported.
           </p>
         </div>
-      )}
-
-      <button
-        onClick={handleSubmit}
-        disabled={loading || !password}
-        style={{
-          width: '100%',
-          fontFamily: 'Bangers, cursive',
-          letterSpacing: '0.12em',
-          fontSize: '1.3rem',
-          padding: '0.85rem',
-          border: '3px solid #E8E8E0',
-          boxShadow: loading || !password ? '2px 2px 0 #555' : '5px 5px 0 #E8E8E0',
-          background: loading || !password ? '#333' : '#F5F5F0',
-          color: loading || !password ? '#555' : '#0A0A0A',
-          cursor: loading || !password ? 'not-allowed' : 'pointer',
-          transition: 'all 0.1s',
-        }}
-        onMouseEnter={(e) => {
-          if (!loading && password) {
-            e.currentTarget.style.transform = 'translate(-2px,-3px)'
-            e.currentTarget.style.boxShadow = '7px 8px 0 #E8E8E0'
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = ''
-          e.currentTarget.style.boxShadow = loading || !password ? '2px 2px 0 #555' : '5px 5px 0 #E8E8E0'
-        }}
-      >
-        {loading ? 'Verifying...' : '→ MASUK'}
-      </button>
-
-      <p
-        style={{
-          color: '#333',
-          fontSize: '0.78rem',
-          textAlign: 'center',
-          marginTop: '1.5rem',
-          fontFamily: 'JetBrains Mono, monospace',
-        }}
-      >
-        Unauthorized access will be logged.
-      </p>
+      </div>
     </div>
   )
 }

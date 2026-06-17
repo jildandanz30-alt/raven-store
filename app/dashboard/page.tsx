@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getUser } from '@/lib/auth'
 import { dbSelect } from '@/lib/db'
+import { ShoppingBag, Download, Star, ArrowRight, User as UserIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 function formatPrice(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n)
@@ -25,71 +27,113 @@ export default async function DashboardPage() {
 
   const recentOrders = allOrders
     .sort((a: any, b: any) => b.created_at.localeCompare(a.created_at))
-    .slice(0, 3)
+    .slice(0, 5)
     .map((o: any) => {
       const p = products.find((p: any) => p.id === o.product_id)
-      return { ...o, product_name: p?.name ?? null }
+      return { ...o, product_name: p?.name ?? 'Produk Dihapus' }
     })
 
   const stats = [
-    { label: 'Total Orders', value: ordersCount, icon: '📦', href: '/dashboard/orders', color: '#44aaff' },
-    { label: 'Downloads', value: downloadsCount, icon: '⬇️', href: '/dashboard/downloads', color: '#44dd88' },
-    { label: 'Reviews', value: reviewsCount, icon: '⭐', href: '/dashboard/reviews', color: '#f0a500' },
+    { label: 'Total Orders', value: ordersCount, icon: <ShoppingBag size={24} />, href: '/dashboard/orders', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+    { label: 'Downloads', value: downloadsCount, icon: <Download size={24} />, href: '/dashboard/downloads', color: 'text-green-400', bg: 'bg-green-400/10' },
+    { label: 'Reviews', value: reviewsCount, icon: <Star size={24} />, href: '/dashboard/reviews', color: 'text-amber-400', bg: 'bg-amber-400/10' },
   ]
 
-  const badge: Record<string, { label: string; color: string }> = {
-    pending:   { label: 'PENDING',   color: '#f0a500' },
-    paid:      { label: 'PAID',      color: '#44dd88' },
-    completed: { label: 'DONE',      color: '#44aaff' },
-    cancelled: { label: 'CANCELLED', color: '#ff4444' },
+  const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
+    pending:   { label: 'PENDING',   color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    paid:      { label: 'PAID',      color: 'text-green-500', bg: 'bg-green-500/10' },
+    completed: { label: 'DONE',      color: 'text-blue-500',  bg: 'bg-blue-500/10' },
+    cancelled: { label: 'CANCELLED', color: 'text-red-500',   bg: 'bg-red-500/10' },
   }
 
   return (
-    <div style={{ color: '#F5F5F0', fontFamily: 'Comic Neue,cursive' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', padding: '1.5rem', border: '3px solid #E8E8E0', boxShadow: '5px 5px 0 #E8E8E0', background: '#1A1A1A' }}>
-        {user.avatar && <img src={user.avatar} alt={user.name ?? ''} style={{ width: 60, height: 60, borderRadius: '50%', border: '3px solid #E8E8E0' }} />}
-        <div>
-          <div style={{ fontFamily: 'Bangers,cursive', fontSize: '1.8rem', letterSpacing: '0.08em' }}>
-            SELAMAT DATANG, {(user.name ?? user.email).toUpperCase()}!
+    <div className="space-y-10">
+      {/* User Profile Header */}
+      <div className="glass-card p-8 bg-zinc-900/40 border-white/5 flex flex-col md:flex-row items-center gap-8">
+        <div className="relative">
+          {user.avatar ? (
+            <img src={user.avatar} alt={user.name ?? ''} className="w-24 h-24 rounded-3xl border-2 border-white/10 object-cover" />
+          ) : (
+            <div className="w-24 h-24 rounded-3xl border-2 border-white/10 bg-zinc-800 flex items-center justify-center text-zinc-500">
+              <UserIcon size={40} />
+            </div>
+          )}
+          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-accent rounded-full border-4 border-black flex items-center justify-center">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
           </div>
-          <div style={{ color: '#AAAAAA', fontSize: '0.85rem' }}>{user.email}</div>
+        </div>
+        
+        <div className="text-center md:text-left flex-1">
+          <p className="text-accent-light font-bold tracking-[0.2em] text-[10px] uppercase mb-1">WELCOME BACK</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">
+            {user.name ?? user.email.split('@')[0]}
+          </h1>
+          <p className="text-zinc-500 text-sm font-medium">{user.email}</p>
+        </div>
+
+        <div className="flex gap-3">
+          <Link href="/products" className="btn-elegant btn-primary py-3 px-6 text-xs">
+            Browse Store
+          </Link>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '2rem' }}>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map(s => (
-          <Link key={s.href} href={s.href} style={{ textDecoration: 'none', padding: '1.2rem', border: `3px solid ${s.color}`, boxShadow: `4px 4px 0 ${s.color}`, background: '#1A1A1A', display: 'block' }}>
-            <div style={{ fontSize: '2rem' }}>{s.icon}</div>
-            <div style={{ fontFamily: 'Bangers,cursive', fontSize: '2rem', color: s.color }}>{s.value}</div>
-            <div style={{ color: '#AAAAAA', fontSize: '0.8rem' }}>{s.label}</div>
+          <Link key={s.href} href={s.href} className="glass-card p-6 bg-zinc-900/40 border-white/5 hover:border-white/20 transition-all group">
+            <div className={cn("p-3 w-fit rounded-xl mb-6 transition-transform group-hover:scale-110", s.bg, s.color)}>
+              {s.icon}
+            </div>
+            <div className="text-3xl font-black text-white mb-1">{s.value}</div>
+            <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{s.label}</div>
           </Link>
         ))}
       </div>
 
-      <div style={{ border: '3px solid #E8E8E0', boxShadow: '5px 5px 0 #E8E8E0', background: '#1A1A1A', padding: '1.2rem' }}>
-        <div style={{ fontFamily: 'Bangers,cursive', fontSize: '1.3rem', letterSpacing: '0.08em', marginBottom: '1rem' }}>📦 ORDER TERBARU</div>
-        {recentOrders.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#555' }}>Belum ada order.</div>
-        ) : (
-          recentOrders.map((o: any) => {
-            const b = badge[o.status] ?? { label: o.status.toUpperCase(), color: '#888' }
-            return (
-              <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid #222' }}>
-                <div>
-                  <div style={{ fontFamily: 'Bangers,cursive', letterSpacing: '0.05em' }}>{o.product_name ?? 'Produk'}</div>
-                  <div style={{ color: '#555', fontSize: '0.8rem' }}>{new Date(o.created_at).toLocaleDateString('id-ID')}</div>
+      {/* Recent Activity */}
+      <div className="glass-card bg-zinc-900/40 border-white/5 overflow-hidden">
+        <div className="p-8 border-b border-white/5 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <ShoppingBag className="text-accent-light" size={20} />
+            Order Terbaru
+          </h2>
+          <Link href="/dashboard/orders" className="text-xs font-bold text-zinc-500 hover:text-white transition-colors flex items-center gap-2">
+            LIHAT SEMUA <ArrowRight size={14} />
+          </Link>
+        </div>
+        
+        <div className="divide-y divide-white/5">
+          {recentOrders.length === 0 ? (
+            <div className="p-20 text-center">
+              <p className="text-zinc-600 font-medium">Belum ada aktivitas order.</p>
+            </div>
+          ) : (
+            recentOrders.map((o: any) => {
+              const config = statusConfig[o.status] ?? { label: o.status.toUpperCase(), color: 'text-zinc-500', bg: 'bg-zinc-500/10' }
+              return (
+                <div key={o.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-white/5 flex items-center justify-center text-zinc-500">
+                      <ShoppingBag size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white mb-0.5">{o.product_name}</h4>
+                      <p className="text-xs text-zinc-600 font-medium">{new Date(o.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between sm:justify-end gap-6">
+                    <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border border-current/10", config.bg, config.color)}>
+                      {config.label}
+                    </span>
+                    <span className="text-lg font-black text-white">{formatPrice(o.amount)}</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'Bangers,cursive', fontSize: '0.8rem', padding: '2px 8px', border: `2px solid ${b.color}`, color: b.color }}>{b.label}</span>
-                  <span style={{ fontFamily: 'Bangers,cursive' }}>{formatPrice(o.amount)}</span>
-                </div>
-              </div>
-            )
-          })
-        )}
-        <Link href="/dashboard/orders" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', color: '#AAAAAA', fontSize: '0.85rem', textDecoration: 'none' }}>
-          Lihat semua →
-        </Link>
+              )
+            })
+          )}
+        </div>
       </div>
     </div>
   )

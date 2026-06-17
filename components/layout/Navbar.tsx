@@ -1,50 +1,39 @@
 "use client";
 
-// ============================================
-// RAVEN STORE — NAVBAR (MOBILE RESPONSIVE)
-// Comic-style navigation with hamburger menu
-// ============================================
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ShoppingCart, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser, useClerk } from "@clerk/nextjs";
 
-interface NavItem {
-  href: string;
-  label: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS = [
   { href: "/products", label: "PRODUK" },
   { href: "/products?category=plugin", label: "PLUGIN" },
   { href: "/products?category=asset", label: "ASSET" },
   { href: "/products?category=jasa", label: "JASA" },
 ];
 
-// ============================================
-// MAIN NAVBAR
-// ============================================
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [cartCount] = useState(0); // Wire to cart context in real app
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  
+  const { user, isLoaded, isSignedIn } = useUser();
+  const { signOut } = useClerk();
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
+    setUserMenuOpen(false);
   }, [pathname]);
 
-  // Shadow on scroll
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -54,303 +43,119 @@ export function Navbar() {
     <>
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50",
-          "bg-background border-b-[4px] border-border",
-          "transition-shadow duration-200",
-          scrolled && "shadow-[0_4px_0px_#E8E8E0]"
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b",
+          scrolled 
+            ? "bg-black/80 backdrop-blur-xl border-white/10 py-3" 
+            : "bg-transparent border-transparent py-6"
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-
-          {/* === LOGO === */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 flex-shrink-0 group"
-            aria-label="Raven Store Home"
-          >
-            <div
-              className={cn(
-                "w-9 h-9 bg-accent border-[3px] border-border",
-                "shadow-[3px_3px_0px_#E8E8E0]",
-                "flex items-center justify-center",
-                "transition-[transform,box-shadow] duration-150",
-                "group-hover:-translate-x-[1px] group-hover:-translate-y-[2px]",
-                "group-hover:shadow-[4px_4px_0px_#E8E8E0]"
-              )}
-            >
-              <span className="font-display text-background text-xl leading-none">R</span>
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          {/* LOGO */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-white text-black flex items-center justify-center rounded-xl font-black text-xl transition-transform group-hover:rotate-12">
+              R
             </div>
-            <span className="font-display text-2xl tracking-[0.1em] text-text-primary hidden sm:block">
-              RAVEN<span className="text-text-secondary ml-1 text-xl">STORE</span>
+            <span className="font-black text-2xl tracking-tighter text-white">
+              RAVEN<span className="text-zinc-500">STORE</span>
             </span>
           </Link>
 
-          {/* === DESKTOP NAV LINKS === */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* DESKTOP NAV */}
+          <div className="hidden md:flex items-center gap-8">
             {NAV_ITEMS.map((item) => (
-              <NavLink
+              <Link
                 key={item.href}
                 href={item.href}
-                active={pathname === item.href}
+                className={cn(
+                  "text-xs font-bold uppercase tracking-widest transition-all hover:text-white",
+                  pathname === item.href ? "text-white" : "text-zinc-500"
+                )}
               >
                 {item.label}
-              </NavLink>
+              </Link>
             ))}
           </div>
 
-          {/* === RIGHT ACTIONS === */}
-          <div className="flex items-center gap-2">
-            {/* Cart */}
-            <Link
-              href="/cart"
-              className={cn(
-                "relative p-2 rounded-[2px]",
-                "border-[2px] border-transparent",
-                "hover:border-border hover:bg-surface",
-                "transition-all duration-150"
-              )}
-              aria-label="Cart"
-            >
-              <ShoppingCart size={20} className="text-text-primary" />
-              {cartCount > 0 && (
-                <span
-                  className={cn(
-                    "absolute -top-1 -right-1",
-                    "w-5 h-5 flex items-center justify-center",
-                    "font-display text-xs text-background bg-accent",
-                    "border-[2px] border-background rounded-full"
-                  )}
-                >
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Auth button — Desktop */}
+          {/* ACTIONS */}
+          <div className="flex items-center gap-4">
             <div className="hidden md:block">
-              <AuthButton />
+              {isLoaded && isSignedIn ? (
+                <div className="relative">
+                  <button 
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all"
+                  >
+                    <img src={user.imageUrl} alt="" className="w-8 h-8 rounded-full border border-white/20" />
+                    <span className="text-xs font-bold text-white max-w-[100px] truncate">{user.firstName || user.username}</span>
+                    <ChevronDown size={14} className={cn("text-zinc-500 transition-transform", userMenuOpen && "rotate-180")} />
+                  </button>
+
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-3 w-56 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-2 animate-fade-in">
+                      <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                        <LayoutDashboard size={18} />
+                        <span className="text-sm font-bold">Dashboard</span>
+                      </Link>
+                      <div className="h-px bg-white/5 my-2 mx-2" />
+                      <button 
+                        onClick={() => signOut()}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                      >
+                        <LogOut size={18} />
+                        <span className="text-sm font-bold">Sign Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link href="/login" className="btn-elegant btn-primary py-2.5 px-6 text-xs">
+                  SIGN IN
+                </Link>
+              )}
             </div>
 
-            {/* Hamburger — Mobile only */}
             <button
-              onClick={() => setMobileOpen((v) => !v)}
-              className={cn(
-                "md:hidden p-2 rounded-[2px]",
-                "border-[2px] border-border",
-                "shadow-[2px_2px_0px_#E8E8E0]",
-                "transition-[transform,box-shadow] duration-150",
-                "hover:-translate-x-[1px] hover:-translate-y-[1px]",
-                "hover:shadow-[3px_3px_0px_#E8E8E0]",
-                "active:translate-x-[1px] active:translate-y-[1px]",
-                mobileOpen && "bg-surface"
-              )}
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden p-2 text-zinc-400 hover:text-white"
             >
-              {mobileOpen ? (
-                <X size={20} className="text-text-primary" />
-              ) : (
-                <Menu size={20} className="text-text-primary" />
-              )}
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* === MOBILE MENU OVERLAY === */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden
-        />
-      )}
-
-      {/* === MOBILE MENU PANEL === */}
+      {/* MOBILE MENU */}
       <div
         className={cn(
-          "fixed top-16 left-0 right-0 z-40 md:hidden",
-          "bg-background border-b-[4px] border-border",
-          "shadow-[0_6px_0px_#E8E8E0]",
-          "transition-[transform,opacity] duration-300",
-          mobileOpen
-            ? "translate-y-0 opacity-100 pointer-events-auto"
-            : "-translate-y-4 opacity-0 pointer-events-none"
+          "fixed inset-0 z-40 bg-black transition-transform duration-500 md:hidden",
+          mobileOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        {/* Halftone dots */}
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle, #E8E8E0 1px, transparent 1px)",
-            backgroundSize: "12px 12px",
-          }}
-        />
-
-        <div className="relative z-10 px-4 py-6 space-y-2">
-          {NAV_ITEMS.map((item, i) => (
+        <div className="flex flex-col h-full pt-24 px-8 gap-8">
+          {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                "flex items-center px-4 py-3",
-                "font-display text-xl tracking-widest",
-                "border-[3px] rounded-[2px]",
-                "transition-[transform,box-shadow,background-color] duration-150",
-                pathname === item.href
-                  ? "border-accent bg-surface text-accent shadow-[3px_3px_0px_#FFFFFF]"
-                  : "border-border text-text-primary hover:bg-surface hover:shadow-[3px_3px_0px_#E8E8E0]"
-              )}
-              style={{ animationDelay: `${i * 60}ms` }}
+              className="text-3xl font-black tracking-tighter uppercase text-white hover:text-zinc-400 transition-colors"
             >
               {item.label}
             </Link>
           ))}
-
-          {/* Auth in mobile */}
-          <div className="pt-3 border-t-[3px] border-border">
-            <AuthButton fullWidth />
+          <div className="mt-auto pb-12">
+            {isSignedIn ? (
+              <div className="flex flex-col gap-4">
+                <Link href="/dashboard" className="w-full btn-elegant btn-outline py-4 text-sm">DASHBOARD</Link>
+                <button onClick={() => signOut()} className="w-full btn-elegant bg-red-500/10 text-red-500 border-red-500/20 py-4 text-sm">LOGOUT</button>
+              </div>
+            ) : (
+              <Link href="/login" className="btn-elegant btn-primary w-full py-4 text-sm">
+                SIGN IN
+              </Link>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Spacer for fixed navbar */}
-      <div className="h-16" />
     </>
-  );
-}
-
-// ============================================
-// NAV LINK
-// ============================================
-function NavLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "px-3 py-1.5 rounded-[2px]",
-        "font-display text-sm tracking-widest",
-        "transition-all duration-150",
-        active
-          ? "text-background bg-accent border-[2px] border-border shadow-[2px_2px_0px_#E8E8E0]"
-          : "text-text-secondary hover:text-text-primary hover:bg-surface border-[2px] border-transparent hover:border-border"
-      )}
-    >
-      {children}
-    </Link>
-  );
-}
-
-// ============================================
-// AUTH BUTTON
-// Shows login or user menu based on auth state
-// ============================================
-function AuthButton({ fullWidth = false }: { fullWidth?: boolean }) {
-  // In production, wire this to useAuth() context
-  const isLoggedIn = false;
-  const user = null as null | { display_name: string };
-
-  if (isLoggedIn && user) {
-    return (
-      <div className="relative group">
-        <button
-          className={cn(
-            "flex items-center gap-2 px-3 py-1.5",
-            "font-display text-sm tracking-wider",
-            "border-[2px] border-border bg-surface",
-            "shadow-[2px_2px_0px_#E8E8E0]",
-            "transition-[transform,box-shadow] duration-150",
-            "hover:-translate-x-[1px] hover:-translate-y-[1px]",
-            "hover:shadow-[3px_3px_0px_#E8E8E0]",
-            "rounded-[2px]",
-            fullWidth && "w-full justify-center"
-          )}
-        >
-          <User size={16} />
-          <span className="truncate max-w-[100px]">{user.display_name}</span>
-        </button>
-
-        {/* Dropdown */}
-        <div
-          className={cn(
-            "absolute right-0 top-full mt-2 w-48 py-1",
-            "bg-surface border-[3px] border-border shadow-comic",
-            "rounded-[2px] z-50",
-            "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto",
-            "transition-opacity duration-150"
-          )}
-        >
-          <DropdownItem href="/dashboard" icon={<LayoutDashboard size={14} />}>
-            Dashboard
-          </DropdownItem>
-          <DropdownItem
-            href="/api/auth/signout"
-            icon={<LogOut size={14} />}
-            danger
-          >
-            Keluar
-          </DropdownItem>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      href="/login"
-      className={cn(
-        "flex items-center gap-2 px-4 py-1.5",
-        "font-display text-sm tracking-wider",
-        "bg-accent text-background",
-        "border-[2px] border-border",
-        "shadow-[3px_3px_0px_#E8E8E0]",
-        "rounded-[2px]",
-        "transition-[transform,box-shadow] duration-150",
-        "hover:-translate-x-[1px] hover:-translate-y-[2px]",
-        "hover:shadow-[4px_4px_0px_#E8E8E0]",
-        fullWidth && "w-full justify-center"
-      )}
-    >
-      <User size={16} />
-      LOGIN
-    </Link>
-  );
-}
-
-function DropdownItem({
-  href,
-  icon,
-  children,
-  danger = false,
-}: {
-  href: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-  danger?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "flex items-center gap-2 px-4 py-2",
-        "font-body text-sm",
-        "transition-colors duration-100",
-        danger
-          ? "text-[#FF4444] hover:bg-[#2A0A0A]"
-          : "text-text-primary hover:bg-background"
-      )}
-    >
-      {icon}
-      {children}
-    </Link>
   );
 }
 

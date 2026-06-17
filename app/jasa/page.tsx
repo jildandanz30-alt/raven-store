@@ -1,18 +1,19 @@
 import type { Metadata } from 'next'
-import Navbar from '@/components/Navbar'
+import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import JasaOrderForm from '@/components/JasaOrderForm'
+import { CheckCircle2, Clock, Zap, Package, Paintbrush, Globe } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Jasa',
+  title: 'Layanan Jasa | Raven Store',
   description: 'Jasa pasang plugin, resource pack, dan buat website store untuk server Minecraft kamu.',
 }
 
 const SERVICES = [
   {
     id: 'addon',
-    emoji: '🔌',
+    icon: <Zap className="text-green-400" size={32} />,
     title: 'Pasang Add-on',
     price: 'Rp2.000',
     unit: 'per add-on',
@@ -22,7 +23,7 @@ const SERVICES = [
   },
   {
     id: 'resourcepack',
-    emoji: '📦',
+    icon: <Package className="text-blue-400" size={32} />,
     title: 'Pasang Resource Pack',
     price: 'Rp2.000',
     unit: 'per pack',
@@ -32,7 +33,7 @@ const SERVICES = [
   },
   {
     id: 'itemadder',
-    emoji: '🎨',
+    icon: <Paintbrush className="text-purple-400" size={32} />,
     title: 'Setup ItemAdder / Oraxen',
     price: 'Custom',
     unit: 'tergantung scope',
@@ -42,13 +43,13 @@ const SERVICES = [
   },
   {
     id: 'website',
-    emoji: '🌐',
+    icon: <Globe className="text-pink-400" size={32} />,
     title: 'Buat Website Store',
     price: 'Custom',
     unit: 'hubungi untuk penawaran',
-    desc: 'Website toko profesional untuk server Minecraft kamu. Desain comic book, payment gateway Midtrans, dashboard member.',
+    desc: 'Website toko profesional untuk server Minecraft kamu. Desain modern, payment gateway Midtrans, dashboard member.',
     includes: [
-      'Desain comic book kustom',
+      'Desain modern & elegan',
       'Auth + Dashboard member',
       'Payment gateway (Midtrans)',
       'Deploy ke Railway/Vercel',
@@ -64,36 +65,17 @@ export default function JasaPage() {
   return (
     <>
       <Navbar />
-      <main style={{ padding: '4rem 1.5rem', maxWidth: 1200, margin: '0 auto' }}>
+      <main className="min-h-screen pt-32 pb-24 px-6 max-w-7xl mx-auto">
         {/* Header */}
         <ScrollReveal>
-          <div style={{ marginBottom: '4rem', maxWidth: 680 }}>
-            <p style={{ color: '#AAAAAA', letterSpacing: '0.15em', fontSize: '0.85rem', marginBottom: 6 }}>
+          <div className="mb-16 max-w-3xl">
+            <p className="text-accent-light font-bold tracking-[0.2em] text-xs mb-3 uppercase">
               🛠 PROFESIONAL & TERPERCAYA
             </p>
-            <h1
-              style={{
-                fontFamily: 'Bangers, cursive',
-                fontSize: 'clamp(2.5rem, 7vw, 5rem)',
-                letterSpacing: '0.05em',
-                lineHeight: 1.05,
-                marginBottom: '1rem',
-              }}
-            >
-              Layanan{' '}
-              <span
-                style={{
-                  background: '#F5F5F0',
-                  color: '#0A0A0A',
-                  padding: '0 8px',
-                  border: '3px solid #E8E8E0',
-                  boxShadow: '5px 5px 0 #E8E8E0',
-                }}
-              >
-                Jasa
-              </span>
+            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-6">
+              LAYANAN <span className="text-zinc-500">JASA</span>
             </h1>
-            <p style={{ color: '#AAAAAA', fontSize: '1.05rem', lineHeight: 1.7 }}>
+            <p className="text-zinc-400 text-lg leading-relaxed">
               Butuh bantuan setup server? Kami handle semuanya — dari install plugin sederhana
               sampai bangun website store penuh buat server kamu.
             </p>
@@ -101,103 +83,41 @@ export default function JasaPage() {
         </ScrollReveal>
 
         {/* Service cards */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.5rem',
-            marginBottom: '5rem',
-          }}
-        >
-          {SERVICES.map(({ id, emoji, title, price, unit, desc, includes, turnaround }, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
+          {SERVICES.map(({ id, icon, title, price, unit, desc, includes, turnaround }, i) => (
             <ScrollReveal key={id} delay={i * 0.08}>
-              <div
-                className="comic-panel"
-                style={{
-                  background: '#1A1A1A',
-                  padding: '1.8rem',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <div style={{ fontSize: '2.8rem', marginBottom: 12 }}>{emoji}</div>
-
-                <h2
-                  style={{
-                    fontFamily: 'Bangers, cursive',
-                    fontSize: '1.6rem',
-                    letterSpacing: '0.05em',
-                    marginBottom: 4,
-                  }}
-                >
-                  {title}
-                </h2>
-
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: '1rem' }}>
-                  <span
-                    style={{
-                      fontFamily: 'Bangers, cursive',
-                      fontSize: '1.5rem',
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    {price}
-                  </span>
-                  <span style={{ color: '#555', fontSize: '0.8rem' }}>/ {unit}</span>
+              <div className="glass-card p-8 h-full flex flex-col bg-zinc-900/40 border-white/5">
+                <div className="mb-6 p-3 bg-zinc-900 w-fit rounded-2xl border border-white/5">
+                  {icon}
                 </div>
 
-                <p style={{ color: '#AAAAAA', fontSize: '0.93rem', lineHeight: 1.6, marginBottom: '1.2rem' }}>
+                <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
+
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-xl font-black text-white">{price}</span>
+                  <span className="text-zinc-600 text-xs font-medium uppercase">/ {unit}</span>
+                </div>
+
+                <p className="text-zinc-500 text-sm leading-relaxed mb-8 flex-1">
                   {desc}
                 </p>
 
                 {/* What's included */}
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 5,
-                    marginBottom: '1.2rem',
-                    flex: 1,
-                  }}
-                >
+                <div className="space-y-3 mb-8">
                   {includes.map((item) => (
-                    <li
-                      key={item}
-                      style={{
-                        color: '#AAAAAA',
-                        fontSize: '0.88rem',
-                        display: 'flex',
-                        gap: 8,
-                        alignItems: 'flex-start',
-                      }}
-                    >
-                      <span style={{ color: '#F5F5F0', flexShrink: 0 }}>✓</span>
-                      {item}
-                    </li>
+                    <div key={item} className="flex items-start gap-3">
+                      <CheckCircle2 className="text-accent-light flex-shrink-0 mt-0.5" size={14} />
+                      <span className="text-zinc-400 text-xs font-medium">{item}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
 
-                <div
-                  style={{
-                    paddingTop: '1rem',
-                    borderTop: '2px solid #333',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span style={{ color: '#555', fontSize: '0.8rem' }}>Estimasi selesai:</span>
-                  <span
-                    style={{
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: '0.82rem',
-                      color: '#AAAAAA',
-                    }}
-                  >
-                    {turnaround}
-                  </span>
+                <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-zinc-600">
+                    <Clock size={14} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Estimasi</span>
+                  </div>
+                  <span className="text-xs font-mono text-zinc-400">{turnaround}</span>
                 </div>
               </div>
             </ScrollReveal>
@@ -206,27 +126,18 @@ export default function JasaPage() {
 
         {/* Order form */}
         <ScrollReveal>
-          <div
-            style={{
-              borderTop: '4px solid #E8E8E0',
-              paddingTop: '4rem',
-            }}
-          >
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <p style={{ color: '#AAAAAA', letterSpacing: '0.15em', fontSize: '0.85rem', marginBottom: 4 }}>
+          <div className="pt-24 border-t border-white/5">
+            <div className="text-center mb-16">
+              <p className="text-accent-light font-bold tracking-[0.2em] text-xs mb-3 uppercase">
                 📋 ISI FORMULIR DI BAWAH
               </p>
-              <h2
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                  letterSpacing: '0.06em',
-                }}
-              >
-                Order Jasa Sekarang
+              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">
+                ORDER JASA SEKARANG
               </h2>
             </div>
-            <JasaOrderForm services={SERVICES.map((s) => ({ id: s.id, title: s.title }))} />
+            <div className="max-w-2xl mx-auto">
+              <JasaOrderForm services={SERVICES.map((s) => ({ id: s.id, title: s.title }))} />
+            </div>
           </div>
         </ScrollReveal>
       </main>

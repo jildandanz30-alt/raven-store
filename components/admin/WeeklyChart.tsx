@@ -1,6 +1,7 @@
 'use client'
 
 import type { WeeklyPoint } from '@/lib/adminData'
+import { cn } from '@/lib/utils'
 
 export default function WeeklyChart({ data }: { data: WeeklyPoint[] }) {
   const maxOrders = Math.max(...data.map((d) => d.orders), 1)
@@ -10,110 +11,54 @@ export default function WeeklyChart({ data }: { data: WeeklyPoint[] }) {
     n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}jt` : n.toLocaleString('id-ID')
 
   return (
-    <div>
+    <div className="w-full">
       {/* Bar chart */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '0.75rem',
-          alignItems: 'flex-end',
-          height: 160,
-          marginBottom: '0.75rem',
-        }}
-      >
+      <div className="flex gap-4 items-end h-[220px] mb-8">
         {data.map((d) => {
-          const orderHeight = (d.orders / maxOrders) * 140
-          const revenueHeight = (d.revenue / maxRevenue) * 140
+          const orderHeight = (d.orders / maxOrders) * 180
+          const revenueHeight = (d.revenue / maxRevenue) * 180
 
           return (
             <div
               key={d.date}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 3,
-                height: '100%',
-                justifyContent: 'flex-end',
-              }}
+              className="flex-1 flex flex-col items-center group relative"
             >
-              {/* Revenue bar (back) */}
-              <div style={{ width: '100%', display: 'flex', gap: 2, alignItems: 'flex-end', height: 140 }}>
+              {/* Tooltip */}
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap shadow-xl border border-white/20">
+                {d.orders} Orders • Rp{formatRp(d.revenue)}
+              </div>
+
+              {/* Bars */}
+              <div className="w-full flex gap-1 items-end h-[180px] px-1">
                 <div
-                  title={`Revenue: Rp${formatRp(d.revenue)}`}
-                  style={{
-                    flex: 1,
-                    height: Math.max(revenueHeight, 2),
-                    background: '#333',
-                    border: '2px solid #555',
-                    transition: 'height 0.3s ease',
-                    cursor: 'default',
-                  }}
+                  className="flex-1 bg-zinc-800 rounded-t-lg transition-all duration-500 group-hover:bg-zinc-700"
+                  style={{ height: Math.max(revenueHeight, 4) }}
                 />
                 <div
-                  title={`Orders: ${d.orders}`}
-                  style={{
-                    flex: 1,
-                    height: Math.max(orderHeight, d.orders > 0 ? 8 : 2),
-                    background: '#F5F5F0',
-                    border: '2px solid #E8E8E0',
-                    boxShadow: d.orders > 0 ? '2px 2px 0 #E8E8E0' : 'none',
-                    transition: 'height 0.3s ease',
-                    cursor: 'default',
-                  }}
+                  className="flex-1 bg-accent-light rounded-t-lg transition-all duration-500 shadow-[0_0_15px_-5px_rgba(144,238,144,0.5)] group-hover:brightness-110"
+                  style={{ height: Math.max(orderHeight, d.orders > 0 ? 10 : 4) }}
                 />
               </div>
 
               {/* Day label */}
-              <span
-                style={{
-                  fontFamily: 'Bangers, cursive',
-                  fontSize: '0.75rem',
-                  letterSpacing: '0.05em',
-                  color: '#AAAAAA',
-                  marginTop: 4,
-                }}
-              >
+              <span className="text-[10px] font-bold text-zinc-600 mt-4 uppercase tracking-widest">
                 {d.date}
               </span>
-
-              {/* Order count */}
-              {d.orders > 0 && (
-                <span
-                  style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.68rem',
-                    color: '#F5F5F0',
-                  }}
-                >
-                  {d.orders}
-                </span>
-              )}
             </div>
           )
         })}
       </div>
 
       {/* Legend */}
-      <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-        {[
-          { color: '#F5F5F0', label: 'Orders' },
-          { color: '#333', border: '2px solid #555', label: 'Revenue' },
-        ].map(({ color, border, label }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div
-              style={{
-                width: 14,
-                height: 14,
-                background: color,
-                border: border ?? '2px solid #E8E8E0',
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ color: '#555', fontSize: '0.8rem' }}>{label}</span>
-          </div>
-        ))}
+      <div className="flex gap-8 pt-6 border-t border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 rounded-full bg-accent-light shadow-[0_0_10px_rgba(144,238,144,0.5)]" />
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Orders</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 rounded-full bg-zinc-800" />
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Revenue</span>
+        </div>
       </div>
     </div>
   )

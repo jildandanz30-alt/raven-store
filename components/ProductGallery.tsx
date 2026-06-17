@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ProductGalleryProps {
   images: string[]
@@ -12,35 +14,57 @@ export default function ProductGallery({ images, name }: ProductGalleryProps) {
   if (!images.length) return null
 
   return (
-    <div style={{ marginBottom:'1.5rem' }}>
+    <div className="space-y-4">
       {/* Main image */}
-      <div style={{ position:'relative', width:'100%', aspectRatio:'16/9', background:'#111', border:'3px solid #E8E8E0', boxShadow:'5px 5px 0 #E8E8E0', overflow:'hidden', marginBottom:'0.75rem' }}>
-        <img src={images[active]} alt={name ?? 'Product'} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+      <div className="relative aspect-video bg-zinc-950 rounded-2xl overflow-hidden group">
+        <img 
+          src={images[active]} 
+          alt={name ?? 'Product'} 
+          className="w-full h-full object-cover transition-all duration-700"
+        />
+
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
         {images.length > 1 && (
           <>
-            <button onClick={() => setActive(p => (p - 1 + images.length) % images.length)}
-              style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', background:'rgba(0,0,0,0.7)', border:'2px solid #E8E8E0', color:'#F5F5F0', width:36, height:36, cursor:'pointer', fontFamily:'Bangers,cursive', fontSize:'1.2rem' }}>
-              ‹
-            </button>
-            <button onClick={() => setActive(p => (p + 1) % images.length)}
-              style={{ position:'absolute', right:8, top:'50%', transform:'translateY(-50%)', background:'rgba(0,0,0,0.7)', border:'2px solid #E8E8E0', color:'#F5F5F0', width:36, height:36, cursor:'pointer', fontFamily:'Bangers,cursive', fontSize:'1.2rem' }}>
-              ›
-            </button>
-            <span style={{ position:'absolute', bottom:8, right:8, background:'rgba(0,0,0,0.7)', color:'#AAAAAA', fontSize:'0.75rem', padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>
+            <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between opacity-0 group-hover:opacity-100 transition-all duration-300">
+              <button 
+                onClick={() => setActive(p => (p - 1 + images.length) % images.length)}
+                className="w-10 h-10 bg-black/60 backdrop-blur-md border border-white/10 text-white rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all active:scale-90"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button 
+                onClick={() => setActive(p => (p + 1) % images.length)}
+                className="w-10 h-10 bg-black/60 backdrop-blur-md border border-white/10 text-white rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all active:scale-90"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+            
+            <div className="absolute bottom-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-bold text-zinc-400 tracking-widest uppercase">
               {active + 1} / {images.length}
-            </span>
+            </div>
           </>
         )}
       </div>
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap' }}>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {images.map((src, i) => (
-            <button key={i} onClick={() => setActive(i)}
-              style={{ width:64, height:48, padding:0, border: i===active ? '3px solid #F5F5F0' : '2px solid #333', cursor:'pointer', overflow:'hidden', boxShadow: i===active ? '2px 2px 0 #E8E8E0' : 'none', background:'#111' }}>
-              <img src={src} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+            <button 
+              key={i} 
+              onClick={() => setActive(i)}
+              className={cn(
+                "relative w-24 aspect-video rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 border-2",
+                i === active 
+                  ? "border-accent-light shadow-[0_0_15px_-5px_rgba(144,238,144,0.5)] scale-105" 
+                  : "border-white/5 opacity-50 hover:opacity-100"
+              )}
+            >
+              <img src={src} alt="" className="w-full h-full object-cover" />
             </button>
           ))}
         </div>

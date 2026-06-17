@@ -1,19 +1,20 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 const CATEGORIES = [
   { value: 'all', label: 'Semua' },
-  { value: 'plugin', label: '🔌 Plugin' },
-  { value: 'asset', label: '🎨 Asset' },
-  { value: 'jasa', label: '🛠 Jasa' },
+  { value: 'plugin', label: 'Plugin' },
+  { value: 'asset', label: 'Asset' },
+  { value: 'jasa', label: 'Layanan Jasa' },
 ]
 
 export default function ProductsFilter({ active }: { active: string }) {
   const router = useRouter()
 
   return (
-    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+    <div className="flex gap-3 flex-wrap">
       {CATEGORIES.map(({ value, label }) => {
         const isActive = active === value
         return (
@@ -22,31 +23,12 @@ export default function ProductsFilter({ active }: { active: string }) {
             onClick={() =>
               router.push(value === 'all' ? '/products' : `/products?category=${value}`)
             }
-            style={{
-              fontFamily: 'Bangers, cursive',
-              letterSpacing: '0.08em',
-              fontSize: '1rem',
-              padding: '0.5rem 1.4rem',
-              border: '3px solid #E8E8E0',
-              boxShadow: isActive ? '4px 4px 0 #E8E8E0' : '2px 2px 0 #555',
-              background: isActive ? '#F5F5F0' : '#1A1A1A',
-              color: isActive ? '#0A0A0A' : '#AAAAAA',
-              cursor: 'pointer',
-              transform: isActive ? 'translate(-1px,-2px)' : 'none',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.boxShadow = '4px 4px 0 #E8E8E0'
-                e.currentTarget.style.color = '#F5F5F0'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.boxShadow = '2px 2px 0 #555'
-                e.currentTarget.style.color = '#AAAAAA'
-              }
-            }}
+            className={cn(
+              "px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 border",
+              isActive 
+                ? "bg-white text-black border-white shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]" 
+                : "bg-zinc-900 text-zinc-500 border-white/5 hover:border-white/20 hover:text-white"
+            )}
           >
             {label}
           </button>

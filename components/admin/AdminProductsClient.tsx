@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { Plus, Filter, Edit2, Trash2, CheckCircle2, AlertCircle, ExternalLink, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type ProductCategory = 'plugin' | 'asset' | 'jasa'
 
@@ -18,25 +20,13 @@ interface Product {
 }
 
 const CATEGORIES: { value: ProductCategory; label: string }[] = [
-  { value: 'plugin', label: '🔌 Plugin' },
-  { value: 'asset',  label: '🎨 Asset'  },
-  { value: 'jasa',   label: '🛠️ Jasa'   },
+  { value: 'plugin', label: 'Plugin' },
+  { value: 'asset',  label: 'Asset'  },
+  { value: 'jasa',   label: 'Jasa'   },
 ]
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80)
-}
-
-const inp: React.CSSProperties = {
-  width: '100%', background: '#0A0A0A', color: '#F5F5F0',
-  border: '3px solid #333', padding: '0.65rem 0.9rem',
-  fontFamily: 'Comic Neue, cursive', fontSize: '0.95rem',
-  outline: 'none', boxSizing: 'border-box',
-}
-
-const lbl: React.CSSProperties = {
-  fontFamily: 'Bangers, cursive', letterSpacing: '0.08em',
-  fontSize: '0.88rem', color: '#AAAAAA', display: 'block', marginBottom: 5,
 }
 
 type FormState = {
@@ -101,113 +91,133 @@ function ProductModal({ product, onClose, onSaved }: {
     }
   }
 
-  const overlay: React.CSSProperties = {
-    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    zIndex: 1000, padding: '1rem',
-  }
-  const modal: React.CSSProperties = {
-    background: '#1A1A1A', border: '4px solid #E8E8E0',
-    boxShadow: '8px 8px 0 #E8E8E0', width: '100%', maxWidth: 560,
-    maxHeight: '90vh', overflow: 'auto', padding: '1.5rem',
-  }
-
   return (
-    <div style={overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div style={modal}>
-        <div style={{ fontFamily: 'Bangers, cursive', fontSize: '1.6rem', color: '#F5F5F0', letterSpacing: '0.1em', marginBottom: '1.2rem' }}>
-          {isEdit ? '✏️ EDIT PRODUK' : '➕ TAMBAH PRODUK'}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in">
+        <div className="p-8 border-b border-white/5 flex justify-between items-center sticky top-0 bg-zinc-950 z-10">
+          <h3 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+            {isEdit ? <Edit2 className="text-accent-light" size={24} /> : <Plus className="text-accent-light" size={24} />}
+            {isEdit ? 'EDIT PRODUK' : 'TAMBAH PRODUK'}
+          </h3>
+          <button onClick={onClose} className="p-2 text-zinc-500 hover:text-white transition-colors">
+            <X size={24} />
+          </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* Nama */}
-          <div>
-            <label style={lbl}>NAMA PRODUK *</label>
-            <input style={inp} value={form.name} onChange={(e) => {
-              const val = e.target.value
-              setForm(f => ({ ...f, name: val, slug: !isEdit ? slugify(val) : f.slug }))
-            }} placeholder="Contoh: SuperCrates Premium" />
-          </div>
-
-          {/* Slug */}
-          <div>
-            <label style={lbl}>SLUG (URL) *</label>
-            <input style={inp} value={form.slug} onChange={set('slug')} placeholder="super-crates-premium" />
-          </div>
-
-          {/* Kategori */}
-          <div>
-            <label style={lbl}>KATEGORI *</label>
-            <select style={inp} value={form.category} onChange={set('category')}>
-              {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-          </div>
-
-          {/* Harga */}
-          <div>
-            <label style={lbl}>HARGA (IDR) *</label>
-            <input style={inp} type="number" value={form.price} onChange={set('price')} placeholder="25000" min={0} />
-          </div>
-
-          {/* Deskripsi */}
-          <div>
-            <label style={lbl}>DESKRIPSI</label>
-            <textarea style={{ ...inp, resize: 'vertical' }} rows={4} value={form.description} onChange={set('description')} placeholder="Jelaskan fitur produk..." />
-          </div>
-
-          {/* Gambar URLs */}
-          <div>
-            <label style={lbl}>URL GAMBAR (satu per baris)</label>
-            <textarea style={{ ...inp, resize: 'vertical', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.82rem' }} rows={3} value={form.images} onChange={set('images')} placeholder={"https://i.imgur.com/abc.png\nhttps://i.imgur.com/def.png"} />
-            <div style={{ fontFamily: 'Comic Neue, cursive', color: '#555', fontSize: '0.8rem', marginTop: 4 }}>Upload dulu ke imgur/imagekit, paste URL di sini</div>
-          </div>
-
-          {/* Download URL — field utama */}
-          <div style={{ border: '3px solid #4488ff', padding: '1rem', background: '#0a1a2a' }}>
-            <label style={{ ...lbl, color: '#88bbff', fontSize: '0.95rem' }}>🔗 URL DOWNLOAD</label>
-            <input
-              style={{ ...inp, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.85rem', borderColor: '#4488ff' }}
-              value={form.download_url} onChange={set('download_url')}
-              placeholder="https://drive.google.com/file/d/... atau link lain"
-            />
-            <div style={{ fontFamily: 'Comic Neue, cursive', color: '#88bbff', fontSize: '0.8rem', marginTop: 5 }}>
-              Link ini akan muncul ke buyer setelah kamu approve order mereka. Bisa Google Drive, MediaFire, dll.
+        <div className="p-8 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Nama Produk *</label>
+              <input 
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-3 px-4 outline-none focus:border-accent transition-all" 
+                value={form.name} 
+                onChange={(e) => {
+                  const val = e.target.value
+                  setForm(f => ({ ...f, name: val, slug: !isEdit ? slugify(val) : f.slug }))
+                }} 
+                placeholder="Contoh: Raven Anticheat" 
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Slug (URL) *</label>
+              <input 
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-3 px-4 outline-none focus:border-accent transition-all font-mono text-sm" 
+                value={form.slug} 
+                onChange={set('slug')} 
+                placeholder="raven-anticheat" 
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Kategori *</label>
+              <select 
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-3 px-4 outline-none focus:border-accent transition-all appearance-none cursor-pointer" 
+                value={form.category} 
+                onChange={set('category')}
+              >
+                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Harga (IDR) *</label>
+              <input 
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-3 px-4 outline-none focus:border-accent transition-all" 
+                type="number" 
+                value={form.price} 
+                onChange={set('price')} 
+                placeholder="150000" 
+              />
             </div>
           </div>
 
-          {/* Status aktif */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-            <input
-              type="checkbox" id="is_active" checked={form.is_active}
-              onChange={(e) => setForm(f => ({ ...f, is_active: e.target.checked }))}
-              style={{ width: 18, height: 18, cursor: 'pointer' }}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Deskripsi</label>
+            <textarea 
+              className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 outline-none focus:border-accent transition-all resize-none" 
+              rows={4} 
+              value={form.description} 
+              onChange={set('description')} 
+              placeholder="Jelaskan fitur produk..." 
             />
-            <label htmlFor="is_active" style={{ ...lbl, marginBottom: 0, cursor: 'pointer' }}>PRODUK AKTIF (tampil di toko)</label>
           </div>
-        </div>
 
-        {error && (
-          <div style={{ marginTop: '1rem', border: '2px solid #ff4444', padding: '0.6rem', color: '#ff8888', fontFamily: 'Comic Neue, cursive', fontSize: '0.9rem' }}>
-            ❌ {error}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">URL Gambar (satu per baris)</label>
+            <textarea 
+              className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 outline-none focus:border-accent transition-all resize-none font-mono text-xs" 
+              rows={3} 
+              value={form.images} 
+              onChange={set('images')} 
+              placeholder={"https://i.imgur.com/abc.png\nhttps://i.imgur.com/def.png"} 
+            />
           </div>
-        )}
 
-        <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem' }}>
-          <button onClick={handleSave} disabled={saving} style={{
-            fontFamily: 'Bangers, cursive', letterSpacing: '0.08em', fontSize: '1.1rem',
-            padding: '0.6rem 2rem', flex: 1,
-            background: saving ? '#333' : '#F5F5F0', color: saving ? '#666' : '#0A0A0A',
-            border: '3px solid #E8E8E0', boxShadow: saving ? 'none' : '4px 4px 0 #E8E8E0',
-            cursor: saving ? 'not-allowed' : 'pointer',
-          }}>
-            {saving ? 'MENYIMPAN...' : isEdit ? '💾 SIMPAN PERUBAHAN' : '➕ TAMBAH PRODUK'}
-          </button>
-          <button onClick={onClose} style={{
-            fontFamily: 'Bangers, cursive', letterSpacing: '0.08em', fontSize: '1rem',
-            padding: '0.6rem 1.2rem',
-            background: 'transparent', color: '#F5F5F0',
-            border: '3px solid #555', cursor: 'pointer',
-          }}>BATAL</button>
+          <div className="p-6 bg-accent-soft/30 border border-accent/10 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2 text-accent-light">
+              <ExternalLink size={18} />
+              <label className="text-xs font-bold uppercase tracking-widest">Link Download Produk</label>
+            </div>
+            <input
+              className="w-full bg-black/50 border border-white/10 text-white rounded-xl py-3 px-4 outline-none focus:border-accent transition-all font-mono text-sm"
+              value={form.download_url} 
+              onChange={set('download_url')}
+              placeholder="https://drive.google.com/..."
+            />
+            <p className="text-[10px] text-zinc-500 font-medium">Link ini akan muncul di dashboard pembeli setelah status order PAID.</p>
+          </div>
+
+          <div className="flex items-center gap-3 p-2">
+            <input
+              type="checkbox" 
+              id="is_active" 
+              checked={form.is_active}
+              onChange={(e) => setForm(f => ({ ...f, is_active: e.target.checked }))}
+              className="w-5 h-5 rounded-lg bg-black border-white/10 text-accent focus:ring-accent"
+            />
+            <label htmlFor="is_active" className="text-sm font-bold text-white cursor-pointer select-none">Produk Aktif (Tampil di Katalog)</label>
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <AlertCircle className="text-red-500 flex-shrink-0" size={18} />
+              <p className="text-red-500 text-sm font-bold">{error}</p>
+            </div>
+          )}
+
+          <div className="flex gap-4 pt-4 sticky bottom-0 bg-zinc-950 pb-2">
+            <button 
+              onClick={handleSave} 
+              disabled={saving} 
+              className="flex-1 btn-elegant btn-primary py-4 text-lg disabled:opacity-50"
+            >
+              {saving ? 'MENYIMPAN...' : isEdit ? 'SIMPAN PERUBAHAN' : 'TAMBAH PRODUK'}
+            </button>
+            <button 
+              onClick={onClose} 
+              className="btn-elegant btn-outline py-4 px-8 text-lg"
+            >
+              BATAL
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -242,7 +252,7 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
   }
 
   return (
-    <>
+    <div className="space-y-8">
       {modal && (
         <ProductModal
           product={typeof modal === 'object' && modal !== null && 'id' in modal ? modal as Product : undefined}
@@ -252,86 +262,98 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
       )}
 
       {/* Toolbar */}
-      <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1.2rem' }}>
-        <button onClick={() => setModal('add')} style={{
-          fontFamily: 'Bangers, cursive', letterSpacing: '0.08em', fontSize: '1.1rem',
-          padding: '0.5rem 1.5rem', background: '#F5F5F0', color: '#0A0A0A',
-          border: '3px solid #E8E8E0', boxShadow: '4px 4px 0 #E8E8E0', cursor: 'pointer',
-        }}>
-          ➕ TAMBAH PRODUK
+      <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+        <button 
+          onClick={() => setModal('add')} 
+          className="btn-elegant btn-primary py-3 px-8 text-sm"
+        >
+          <Plus size={18} className="mr-2" />
+          TAMBAH PRODUK
         </button>
-        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+        
+        <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5">
           {(['all', 'plugin', 'asset', 'jasa'] as const).map(c => (
-            <button key={c} onClick={() => setFilterCat(c)} style={{
-              fontFamily: 'Bangers, cursive', letterSpacing: '0.06em', fontSize: '0.85rem',
-              padding: '0.3rem 0.8rem',
-              border: `2px solid ${filterCat === c ? '#E8E8E0' : '#333'}`,
-              boxShadow: filterCat === c ? '3px 3px 0 #E8E8E0' : 'none',
-              background: filterCat === c ? '#F5F5F0' : 'transparent',
-              color: filterCat === c ? '#0A0A0A' : '#555', cursor: 'pointer',
-            }}>
-              {c === 'all' ? 'SEMUA' : c.toUpperCase()}
+            <button 
+              key={c} 
+              onClick={() => setFilterCat(c)} 
+              className={cn(
+                "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all",
+                filterCat === c 
+                  ? "bg-white text-black shadow-lg" 
+                  : "text-zinc-500 hover:text-white"
+              )}
+            >
+              {c === 'all' ? 'SEMUA' : c}
             </button>
           ))}
         </div>
       </div>
 
       {/* Product grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filtered.map(p => (
-          <div key={p.id} style={{
-            border: '3px solid #E8E8E0', boxShadow: '4px 4px 0 #E8E8E0',
-            background: '#1A1A1A', padding: '1rem',
-            opacity: p.is_active ? 1 : 0.5,
-          }}>
+          <div key={p.id} className={cn(
+            "glass-card p-6 bg-zinc-900/40 border-white/5 group transition-all",
+            !p.is_active && "opacity-60 grayscale-[0.5]"
+          )}>
             {/* Gambar preview */}
-            {p.images?.[0] && (
-              <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: 120, objectFit: 'cover', border: '2px solid #333', marginBottom: '0.7rem' }} />
-            )}
+            <div className="relative aspect-video rounded-2xl overflow-hidden mb-6 bg-black border border-white/5">
+              {p.images?.[0] ? (
+                <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Package className="text-zinc-800" size={48} />
+                </div>
+              )}
+              <div className="absolute top-4 left-4 flex gap-2">
+                <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full border border-white/10 uppercase tracking-widest">
+                  {p.category}
+                </span>
+                <span className={cn(
+                  "text-[10px] font-bold px-3 py-1 rounded-full border backdrop-blur-md uppercase tracking-widest",
+                  p.is_active ? "bg-green-500/20 text-green-400 border-green-500/20" : "bg-zinc-500/20 text-zinc-400 border-zinc-500/20"
+                )}>
+                  {p.is_active ? 'AKTIF' : 'NONAKTIF'}
+                </span>
+              </div>
+            </div>
 
-            <div style={{ fontFamily: 'Bangers, cursive', fontSize: '1.1rem', color: '#F5F5F0', letterSpacing: '0.06em', marginBottom: 4 }}>
+            <h3 className="text-lg font-bold text-white mb-1 group-hover:text-accent-light transition-colors line-clamp-1">
               {p.name}
-            </div>
-            <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: 'Bangers, cursive', fontSize: '0.8rem', padding: '2px 8px', border: '2px solid #555', color: '#AAAAAA' }}>
-                {p.category.toUpperCase()}
-              </span>
-              <span style={{ fontFamily: 'Bangers, cursive', fontSize: '0.8rem', padding: '2px 8px', border: `2px solid ${p.is_active ? '#44ff88' : '#555'}`, color: p.is_active ? '#44ff88' : '#555' }}>
-                {p.is_active ? 'AKTIF' : 'NONAKTIF'}
-              </span>
-            </div>
-            <div style={{ fontFamily: 'Bangers, cursive', fontSize: '1.3rem', color: '#FFD700', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
+            </h3>
+            <p className="text-2xl font-black text-white mb-6 tracking-tight">
               Rp{p.price.toLocaleString('id-ID')}
-            </div>
+            </p>
 
             {/* Download URL indicator */}
-            {p.download_url ? (
-              <div style={{ fontFamily: 'Comic Neue, cursive', fontSize: '0.78rem', color: '#88bbff', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: 4 }}>
-                🔗 Link download tersedia
-              </div>
-            ) : (
-              <div style={{ fontFamily: 'Comic Neue, cursive', fontSize: '0.78rem', color: '#ff8888', marginBottom: '0.8rem' }}>
-                ⚠️ Belum ada link download
-              </div>
-            )}
+            <div className="mb-6 p-3 rounded-xl bg-black/40 border border-white/5 flex items-center gap-3">
+              {p.download_url ? (
+                <>
+                  <CheckCircle2 className="text-green-500" size={16} />
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Link Download Tersedia</span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="text-amber-500" size={16} />
+                  <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Belum Ada Link</span>
+                </>
+              )}
+            </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => setModal(p)} style={{
-                fontFamily: 'Bangers, cursive', letterSpacing: '0.06em', fontSize: '0.9rem',
-                padding: '0.35rem 1rem', flex: 1,
-                background: '#F5F5F0', color: '#0A0A0A',
-                border: '2px solid #E8E8E0', boxShadow: '3px 3px 0 #E8E8E0', cursor: 'pointer',
-              }}>
-                ✏️ EDIT
+            <div className="flex gap-3 pt-6 border-t border-white/5">
+              <button 
+                onClick={() => setModal(p)} 
+                className="flex-1 btn-elegant btn-outline py-3 text-xs"
+              >
+                <Edit2 size={14} className="mr-2" />
+                EDIT
               </button>
-              <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} style={{
-                fontFamily: 'Bangers, cursive', letterSpacing: '0.06em', fontSize: '0.9rem',
-                padding: '0.35rem 0.8rem',
-                background: 'transparent', color: '#ff8888',
-                border: '2px solid #ff4444', cursor: 'pointer',
-                opacity: deleting === p.id ? 0.5 : 1,
-              }}>
-                🗑️
+              <button 
+                onClick={() => handleDelete(p.id)} 
+                disabled={deleting === p.id} 
+                className="p-3 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-50"
+              >
+                <Trash2 size={16} />
               </button>
             </div>
           </div>
@@ -339,10 +361,11 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
       </div>
 
       {filtered.length === 0 && (
-        <div style={{ color: '#555', fontFamily: 'Comic Neue, cursive', padding: '2rem', textAlign: 'center' }}>
-          Belum ada produk. Tambahkan produk pertamamu!
+        <div className="glass-card p-24 text-center border-dashed border-2 border-white/5">
+          <p className="text-zinc-500 text-xl font-bold mb-2">Belum ada produk.</p>
+          <p className="text-zinc-600 text-sm">Tambahkan produk pertamamu untuk mulai berjualan!</p>
         </div>
       )}
-    </>
+    </div>
   )
 }

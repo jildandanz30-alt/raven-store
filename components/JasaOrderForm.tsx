@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { CheckCircle2, AlertCircle, Send, MessageSquare } from 'lucide-react'
 
 interface JasaOrderFormProps {
   services: { id: string; title: string }[]
@@ -50,87 +51,34 @@ export default function JasaOrderForm({ services }: JasaOrderFormProps) {
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    background: '#111',
-    color: '#F5F5F0',
-    border: '3px solid #333',
-    padding: '0.7rem 1rem',
-    fontFamily: 'Comic Neue, cursive',
-    fontSize: '0.97rem',
-    outline: 'none',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.15s',
-  }
-
-  const labelStyle: React.CSSProperties = {
-    fontFamily: 'Bangers, cursive',
-    letterSpacing: '0.08em',
-    fontSize: '1rem',
-    marginBottom: 6,
-    display: 'block',
-    color: '#F5F5F0',
-  }
-
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto' }}>
+    <div className="w-full max-w-2xl mx-auto">
       {result === 'success' ? (
-        <div
-          style={{
-            border: '3px solid #E8E8E0',
-            boxShadow: '6px 6px 0 #E8E8E0',
-            background: '#1A1A1A',
-            padding: '3rem',
-            textAlign: 'center',
-          }}
-        >
-          <div style={{ fontSize: '3rem', marginBottom: 12 }}>✓</div>
-          <h3
-            style={{
-              fontFamily: 'Bangers, cursive',
-              fontSize: '2rem',
-              letterSpacing: '0.05em',
-              marginBottom: 8,
-            }}
-          >
-            Order Diterima!
-          </h3>
-          <p style={{ color: '#AAAAAA', lineHeight: 1.6 }}>
-            Kami akan segera menghubungi kamu via Discord. Biasanya dalam <strong style={{ color: '#F5F5F0' }}>1-2 jam</strong>.
+        <div className="glass-card p-12 text-center bg-zinc-900/40 border-white/5">
+          <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20">
+            <CheckCircle2 className="text-green-500" size={40} />
+          </div>
+          <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Order Diterima!</h3>
+          <p className="text-zinc-500 leading-relaxed mb-10 max-w-md mx-auto">
+            Kami akan segera menghubungi kamu via Discord. Biasanya dalam <strong className="text-white">1-2 jam</strong> kerja.
           </p>
           <button
             onClick={() => setResult(null)}
-            style={{
-              marginTop: '1.5rem',
-              fontFamily: 'Bangers, cursive',
-              letterSpacing: '0.08em',
-              fontSize: '1rem',
-              padding: '0.5rem 1.5rem',
-              border: '3px solid #E8E8E0',
-              boxShadow: '4px 4px 0 #E8E8E0',
-              background: '#1A1A1A',
-              color: '#F5F5F0',
-              cursor: 'pointer',
-            }}
+            className="btn-elegant btn-primary py-4 px-10"
           >
-            Order Lagi
+            Order Jasa Lainnya
           </button>
         </div>
       ) : (
-        <div
-          className="comic-panel"
-          style={{ background: '#1A1A1A', padding: '2rem' }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+        <div className="glass-card p-10 bg-zinc-900/40 border-white/5">
+          <div className="space-y-8">
             {/* Service type */}
             <div>
-              <label style={labelStyle}>Jenis Jasa *</label>
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Jenis Jasa *</label>
               <select
                 value={form.service_type}
                 onChange={set('service_type')}
-                style={{ ...inputStyle, cursor: 'pointer' }}
-                onFocus={(e) => (e.target.style.borderColor = '#E8E8E0')}
-                onBlur={(e) => (e.target.style.borderColor = '#333')}
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 outline-none focus:border-accent transition-all appearance-none cursor-pointer"
               >
                 <option value="">-- Pilih jenis jasa --</option>
                 {services.map((s) => (
@@ -143,91 +91,68 @@ export default function JasaOrderForm({ services }: JasaOrderFormProps) {
 
             {/* Server name */}
             <div>
-              <label style={labelStyle}>Nama / IP Server *</label>
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Nama / IP Server *</label>
               <input
                 type="text"
                 value={form.server_name}
                 onChange={set('server_name')}
                 placeholder="contoh: play.myserver.net"
-                style={inputStyle}
-                onFocus={(e) => (e.target.style.borderColor = '#E8E8E0')}
-                onBlur={(e) => (e.target.style.borderColor = '#333')}
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 outline-none focus:border-accent transition-all"
               />
             </div>
 
             {/* Needs */}
             <div>
-              <label style={labelStyle}>Kebutuhan Kamu *</label>
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Kebutuhan Kamu *</label>
               <textarea
                 value={form.needs}
                 onChange={set('needs')}
                 placeholder="Jelaskan detail apa yang kamu butuhkan. Semakin detail, makin cepat dikerjakan!"
                 rows={5}
-                style={{ ...inputStyle, resize: 'vertical' }}
-                onFocus={(e) => (e.target.style.borderColor = '#E8E8E0')}
-                onBlur={(e) => (e.target.style.borderColor = '#333')}
+                className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 outline-none focus:border-accent transition-all resize-none"
               />
             </div>
 
             {/* Discord contact */}
             <div>
-              <label style={labelStyle}>Discord kamu *</label>
-              <input
-                type="text"
-                value={form.discord_contact}
-                onChange={set('discord_contact')}
-                placeholder="contoh: username#1234 atau @username"
-                style={inputStyle}
-                onFocus={(e) => (e.target.style.borderColor = '#E8E8E0')}
-                onBlur={(e) => (e.target.style.borderColor = '#333')}
-              />
-              <p style={{ color: '#555', fontSize: '0.82rem', marginTop: 4 }}>
-                * Kami akan menghubungi kamu via Discord untuk konfirmasi dan detail lebih lanjut.
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Discord kamu *</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={form.discord_contact}
+                  onChange={set('discord_contact')}
+                  placeholder="contoh: username#1234 atau @username"
+                  className="w-full bg-black border border-white/10 text-white rounded-xl py-4 px-5 pl-12 outline-none focus:border-accent transition-all"
+                />
+                <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={20} />
+              </div>
+              <p className="text-[10px] text-zinc-600 font-medium uppercase tracking-wider mt-3 ml-1">
+                * Kami akan menghubungi kamu via Discord untuk konfirmasi.
               </p>
             </div>
 
             {result === 'error' && (
-              <p
-                style={{
-                  color: '#ff6b6b',
-                  border: '2px solid #ff6b6b',
-                  padding: '0.6rem 1rem',
-                  fontSize: '0.9rem',
-                }}
-              >
-                Gagal mengirim order. Coba lagi atau hubungi kami langsung di Discord.
-              </p>
+              <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <AlertCircle className="text-red-500 flex-shrink-0" size={18} />
+                <p className="text-red-500 text-sm font-bold">
+                  Gagal mengirim order. Coba lagi nanti.
+                </p>
+              </div>
             )}
 
             {/* Submit */}
             <button
               onClick={handleSubmit}
               disabled={!isValid || submitting}
-              style={{
-                fontFamily: 'Bangers, cursive',
-                letterSpacing: '0.1em',
-                fontSize: '1.2rem',
-                padding: '0.8rem',
-                border: '3px solid #E8E8E0',
-                boxShadow: isValid && !submitting ? '5px 5px 0 #E8E8E0' : '2px 2px 0 #555',
-                background: isValid && !submitting ? '#F5F5F0' : '#333',
-                color: isValid && !submitting ? '#0A0A0A' : '#555',
-                cursor: isValid && !submitting ? 'pointer' : 'not-allowed',
-                transition: 'all 0.1s',
-                width: '100%',
-              }}
-              onMouseEnter={(e) => {
-                if (isValid && !submitting) {
-                  e.currentTarget.style.transform = 'translate(-2px,-3px)'
-                  e.currentTarget.style.boxShadow = '7px 8px 0 #E8E8E0'
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = ''
-                e.currentTarget.style.boxShadow = isValid && !submitting ? '5px 5px 0 #E8E8E0' : '2px 2px 0 #555'
-              }}
+              className="w-full btn-elegant btn-primary py-5 text-lg disabled:opacity-50 group"
             >
-              {submitting ? 'Mengirim...' : 'Kirim Order →'}
+              {submitting ? (
+                <div className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full animate-spin" />
+              ) : (
+                <span className="flex items-center justify-center gap-3">
+                  Kirim Order Sekarang <Send size={20} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </span>
+              )}
             </button>
           </div>
         </div>

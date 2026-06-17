@@ -2,6 +2,9 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth'
 import { dbSelect } from '@/lib/db'
+import { Download, Package, ExternalLink, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export default async function DownloadsPage() {
   const { userId: clerkId } = auth()
@@ -18,51 +21,93 @@ export default async function DownloadsPage() {
     const p = products.find((p: any) => p.id === o.product_id)
     return {
       ...o,
-      product_name: p?.name ?? null,
-      product_category: p?.category ?? null,
+      product_name: p?.name ?? 'Produk Dihapus',
+      product_category: p?.category ?? 'Unknown',
       product_slug: p?.slug ?? null,
       product_images: p?.images ?? [],
       download_url: p?.download_url ?? null,
     }
   })
 
-  const panel: React.CSSProperties = { border: '3px solid #E8E8E0', boxShadow: '5px 5px 0 #E8E8E0', background: '#1A1A1A', padding: '1.2rem', marginBottom: '1rem' }
-
   return (
-    <div>
-      <h1 style={{ fontFamily: 'Bangers,cursive', fontSize: '2rem', color: '#F5F5F0', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>📥 DOWNLOAD SAYA</h1>
-      {orders.length === 0 && (
-        <div style={{ ...panel, color: '#AAAAAA', fontFamily: 'Comic Neue,cursive', textAlign: 'center', padding: '2.5rem' }}>
-          Belum ada produk yang bisa didownload. Beli dulu, tunggu konfirmasi admin, lalu link akan muncul di sini.
+    <div className="space-y-10">
+      <div>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-soft border border-accent/20 text-accent-light text-[10px] font-bold tracking-[0.2em] uppercase mb-4">
+          <Download size={12} />
+          MY ASSETS
         </div>
-      )}
-      {orders.map((o: any) => (
-        <div key={o.id} style={panel}>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-            {o.product_images?.[0] && (
-              <img src={o.product_images[0]} alt={o.product_name} style={{ width: 80, height: 80, objectFit: 'cover', border: '2px solid #333', flexShrink: 0 }} />
-            )}
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Bangers,cursive', fontSize: '1.3rem', color: '#F5F5F0', letterSpacing: '0.06em', marginBottom: 4 }}>{o.product_name}</div>
-              <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.6rem' }}>
-                <span style={{ fontFamily: 'Bangers,cursive', fontSize: '0.78rem', padding: '2px 8px', border: '2px solid #555', color: '#AAAAAA' }}>{o.product_category?.toUpperCase()}</span>
-                <span style={{ fontFamily: 'Bangers,cursive', fontSize: '0.78rem', padding: '2px 8px', border: '2px solid #44ff88', color: '#44ff88' }}>{o.status.toUpperCase()}</span>
-              </div>
-              <div style={{ fontFamily: 'Comic Neue,cursive', color: '#AAAAAA', fontSize: '0.82rem', marginBottom: '0.8rem' }}>
-                Rp{(o.amount ?? 0).toLocaleString('id-ID')} · {new Date(o.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </div>
-              {o.download_url ? (
-                <a href={o.download_url} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-block', padding: '6px 16px', background: '#44ff88', color: '#0D0D0D', fontFamily: 'Bangers,cursive', letterSpacing: '0.08em', border: '2px solid #44ff88', textDecoration: 'none' }}>
-                  ⬇ DOWNLOAD
-                </a>
-              ) : (
-                <span style={{ color: '#666', fontSize: '0.82rem', fontFamily: 'Comic Neue,cursive' }}>Link belum tersedia</span>
-              )}
+        <h1 className="text-4xl font-black text-white tracking-tighter">
+          DOWNLOAD <span className="text-zinc-500">PRODUK</span>
+        </h1>
+        <p className="text-zinc-500 text-sm font-medium mt-2">Akses semua produk digital yang telah Anda beli.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {orders.length === 0 ? (
+          <div className="md:col-span-2 glass-card p-24 text-center border-dashed border-2 border-white/5">
+            <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6 text-zinc-700">
+              <Download size={40} />
             </div>
+            <h3 className="text-xl font-bold text-white mb-2">Belum ada download.</h3>
+            <p className="text-zinc-600 text-sm mb-8 max-w-sm mx-auto">
+              Beli produk, tunggu konfirmasi admin, lalu link download akan muncul secara otomatis di sini.
+            </p>
+            <Link href="/products" className="btn-elegant btn-primary py-4 px-10">
+              Mulai Belanja
+            </Link>
           </div>
-        </div>
-      ))}
+        ) : (
+          orders.map((o: any) => (
+            <div key={o.id} className="glass-card bg-zinc-900/40 border-white/5 p-6 flex flex-col group hover:border-white/10 transition-all">
+              <div className="flex gap-5 mb-6">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/5 flex-shrink-0 bg-black">
+                  {o.product_images?.[0] ? (
+                    <img src={o.product_images[0]} alt={o.product_name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-800">
+                      <Package size={32} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2 py-0.5 rounded-md bg-white/5 text-[8px] font-bold text-zinc-500 uppercase tracking-widest border border-white/5">
+                      {o.product_category}
+                    </span>
+                    <span className="flex items-center gap-1 text-[8px] font-bold text-green-500 uppercase tracking-widest">
+                      <ShieldCheck size={10} /> TERVERIFIKASI
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-1 truncate group-hover:text-accent-light transition-colors">{o.product_name}</h3>
+                  <p className="text-[10px] text-zinc-600 font-medium uppercase tracking-widest">
+                    Dibeli pada {new Date(o.created_at).toLocaleDateString('id-ID')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+                {o.download_url ? (
+                  <a 
+                    href={o.download_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full btn-elegant btn-accent py-3 text-xs flex items-center justify-center gap-2"
+                  >
+                    <Download size={16} />
+                    DOWNLOAD FILE
+                  </a>
+                ) : (
+                  <div className="w-full py-3 px-4 bg-zinc-900/50 rounded-xl border border-white/5 text-center">
+                    <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest flex items-center justify-center gap-2">
+                      <Clock size={14} /> Link sedang disiapkan
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { CheckCircle2, Clock, Package, XCircle, ChevronDown, ChevronUp, ExternalLink, User, ShoppingBag, CreditCard, Calendar } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type OrderStatus = 'pending' | 'paid' | 'completed' | 'cancelled'
 
@@ -18,15 +20,11 @@ export interface AdminOrder {
   products?: { name: string; category: string; download_url?: string }
 }
 
-const STATUS_STYLE: Record<OrderStatus, { bg: string; color: string; border: string }> = {
-  pending:   { bg: '#1a1a1a', color: '#AAAAAA',  border: '#555'    },
-  paid:      { bg: '#0a2a0a', color: '#44ff88',  border: '#00ff88' },
-  completed: { bg: '#0a1a2a', color: '#88bbff',  border: '#4488ff' },
-  cancelled: { bg: '#2a0a0a', color: '#ff8888',  border: '#ff4444' },
-}
-
-const STATUS_EMOJI: Record<string, string> = {
-  pending: '🕐', paid: '✅', completed: '📦', cancelled: '❌',
+const STATUS_CONFIG: Record<OrderStatus, { label: string; icon: any; color: string; bg: string; border: string }> = {
+  pending:   { label: 'Pending',   icon: Clock,        color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+  paid:      { label: 'Paid',      icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+  completed: { label: 'Completed', icon: Package,      color: 'text-blue-500',  bg: 'bg-blue-500/10',  border: 'border-blue-500/20' },
+  cancelled: { label: 'Cancelled', icon: XCircle,      color: 'text-red-500',   bg: 'bg-red-500/10',   border: 'border-red-500/20' },
 }
 
 const STATUS_FLOW: OrderStatus[] = ['pending', 'paid', 'completed', 'cancelled']
@@ -64,133 +62,153 @@ export default function AdminOrdersClient({ initialOrders }: { initialOrders: Ad
   }
 
   return (
-    <>
+    <div className="space-y-8">
       {/* Filter tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+      <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 w-fit">
         {(['all', ...STATUS_FLOW] as const).map((s) => {
           const isActive = filter === s
           return (
-            <button key={s} onClick={() => setFilter(s)} style={{
-              fontFamily: 'Bangers, cursive', letterSpacing: '0.06em', fontSize: '0.9rem',
-              padding: '0.35rem 1rem',
-              border: `2px solid ${isActive ? '#E8E8E0' : '#333'}`,
-              boxShadow: isActive ? '3px 3px 0 #E8E8E0' : 'none',
-              background: isActive ? '#F5F5F0' : 'transparent',
-              color: isActive ? '#0A0A0A' : '#555',
-              cursor: 'pointer', transition: 'all 0.12s',
-            }}>
-              {STATUS_EMOJI[s] ?? '📋'} {s === 'all' ? 'Semua' : s.charAt(0).toUpperCase() + s.slice(1)}{' '}
-              <span style={{ opacity: 0.6 }}>({counts[s as keyof typeof counts]})</span>
+            <button 
+              key={s} 
+              onClick={() => setFilter(s)} 
+              className={cn(
+                "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-3",
+                isActive 
+                  ? "bg-white text-black shadow-lg" 
+                  : "text-zinc-500 hover:text-white"
+              )}
+            >
+              {s === 'all' ? 'Semua' : s}
+              <span className={cn(
+                "text-[10px] px-2 py-0.5 rounded-full",
+                isActive ? "bg-black/10 text-black" : "bg-white/5 text-zinc-600"
+              )}>
+                {counts[s as keyof typeof counts]}
+              </span>
             </button>
           )
         })}
       </div>
 
       {/* Orders list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+      <div className="space-y-4">
         {filtered.length === 0 && (
-          <div style={{ color: '#555', fontFamily: 'Comic Neue, cursive', padding: '2rem', textAlign: 'center' }}>
-            Tidak ada order.
+          <div className="glass-card p-24 text-center border-dashed border-2 border-white/5">
+            <p className="text-zinc-500 text-xl font-bold mb-2">Tidak ada order.</p>
+            <p className="text-zinc-600 text-sm">Belum ada aktivitas penjualan untuk kategori ini.</p>
           </div>
         )}
+        
         {filtered.map((order) => {
-          const st = STATUS_STYLE[order.status]
+          const config = STATUS_CONFIG[order.status]
           const isExpanded = expanded === order.id
           const product = order.products as any
           const user = order.users as any
+          const Icon = config.icon
 
           return (
-            <div key={order.id} style={{ border: `3px solid ${st.border}`, boxShadow: `4px 4px 0 ${st.border}`, background: st.bg, overflow: 'hidden' }}>
+            <div 
+              key={order.id} 
+              className={cn(
+                "glass-card overflow-hidden transition-all duration-300",
+                isExpanded ? "bg-zinc-900 border-white/20" : "bg-zinc-900/40 border-white/5 hover:border-white/10"
+              )}
+            >
               {/* Header row */}
               <div
                 onClick={() => setExpanded(isExpanded ? null : order.id)}
-                style={{ padding: '0.8rem 1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}
+                className="p-6 cursor-pointer flex items-center gap-6"
               >
-                <span style={{ fontFamily: 'Bangers, cursive', fontSize: '1rem', color: st.color, letterSpacing: '0.08em', minWidth: 90 }}>
-                  {STATUS_EMOJI[order.status]} {order.status.toUpperCase()}
-                </span>
-                <span style={{ fontFamily: 'Comic Neue, cursive', color: '#F5F5F0', fontWeight: 700, flex: 1 }}>
-                  {product?.name ?? '—'}
-                </span>
-                <span style={{ fontFamily: 'Bangers, cursive', color: '#FFD700', fontSize: '1.1rem', letterSpacing: '0.06em' }}>
-                  Rp{(order.amount ?? 0).toLocaleString('id-ID')}
-                </span>
-                <span style={{ fontFamily: 'Comic Neue, cursive', color: '#AAAAAA', fontSize: '0.8rem' }}>
-                  {new Date(order.created_at).toLocaleDateString('id-ID')}
-                </span>
-                <span style={{ color: '#AAAAAA', fontSize: '0.8rem' }}>{isExpanded ? '▲' : '▼'}</span>
+                <div className={cn("p-3 rounded-xl border", config.bg, config.border, config.color)}>
+                  <Icon size={20} />
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h4 className="font-bold text-white group-hover:text-accent-light transition-colors">
+                      {product?.name ?? 'Produk Dihapus'}
+                    </h4>
+                    <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">#{order.id.slice(0, 8)}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-zinc-500">
+                    <span className="flex items-center gap-1.5"><User size={12} /> {user?.email ?? 'Unknown'}</span>
+                    <span className="flex items-center gap-1.5"><Calendar size={12} /> {new Date(order.created_at).toLocaleDateString('id-ID')}</span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-xl font-black text-white tracking-tight mb-1">
+                    Rp{(order.amount ?? 0).toLocaleString('id-ID')}
+                  </div>
+                  <div className={cn("text-[10px] font-bold uppercase tracking-widest", config.color)}>
+                    {config.label}
+                  </div>
+                </div>
+
+                <div className="ml-4 p-2 rounded-full bg-white/5 text-zinc-600">
+                  {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </div>
               </div>
 
               {/* Expanded detail */}
               {isExpanded && (
-                <div style={{ borderTop: `2px solid ${st.border}`, padding: '1rem', background: '#0A0A0A' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.8rem', marginBottom: '1rem' }}>
-                    <InfoBlock label="Order ID" value={order.id.slice(0, 8) + '...'} mono />
-                    <InfoBlock label="Pembeli" value={user?.email ?? order.user_id} />
-                    <InfoBlock label="Metode Bayar" value={(order.payment_method ?? '—').toUpperCase()} />
-                    <InfoBlock label="Kategori" value={product?.category?.toUpperCase() ?? '—'} />
-                    {order.notes && <InfoBlock label="Catatan" value={order.notes} />}
+                <div className="px-6 pb-6 animate-fade-in">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-black/40 rounded-2xl border border-white/5 mb-6">
+                    <InfoBlock icon={<ShoppingBag size={14} />} label="Produk" value={product?.name ?? '—'} />
+                    <InfoBlock icon={<User size={14} />} label="Pembeli" value={user?.email ?? order.user_id} />
+                    <InfoBlock icon={<CreditCard size={14} />} label="Metode" value={(order.payment_method ?? 'Manual').toUpperCase()} />
+                    <InfoBlock icon={<Clock size={14} />} label="Status" value={order.status.toUpperCase()} />
+                    {order.notes && <div className="md:col-span-4"><InfoBlock icon={<Calendar size={14} />} label="Catatan" value={order.notes} /></div>}
                   </div>
 
                   {/* Download URL jika ada */}
                   {product?.download_url && (
-                    <div style={{ marginBottom: '1rem', padding: '0.7rem', border: '2px solid #4488ff', background: '#0a1a2a' }}>
-                      <div style={{ fontFamily: 'Bangers, cursive', color: '#88bbff', letterSpacing: '0.08em', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
-                        🔗 URL DOWNLOAD PRODUK
+                    <div className="mb-6 p-6 bg-accent-soft/30 border border-accent/10 rounded-2xl flex items-center justify-between gap-4">
+                      <div className="flex-1 overflow-hidden">
+                        <div className="flex items-center gap-2 text-accent-light mb-2">
+                          <ExternalLink size={16} />
+                          <label className="text-xs font-bold uppercase tracking-widest">Link Download Produk</label>
+                        </div>
+                        <div className="text-xs font-mono text-zinc-400 truncate">
+                          {product.download_url}
+                        </div>
                       </div>
-                      <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#88bbff', fontSize: '0.82rem', wordBreak: 'break-all' }}>
-                        {product.download_url}
-                      </div>
+                      <button 
+                        onClick={() => window.open(product.download_url, '_blank')}
+                        className="btn-elegant btn-accent py-2 px-4 text-[10px]"
+                      >
+                        BUKA LINK
+                      </button>
                     </div>
                   )}
 
                   {/* Action buttons */}
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    {/* Approve = set paid */}
+                  <div className="flex gap-4">
                     {order.status === 'pending' && (
                       <button
                         onClick={() => handleStatusChange(order.id, 'paid')}
                         disabled={updating === order.id}
-                        style={{
-                          fontFamily: 'Bangers, cursive', letterSpacing: '0.08em', fontSize: '1rem',
-                          padding: '0.5rem 1.2rem',
-                          background: '#00ff88', color: '#0A0A0A',
-                          border: '3px solid #44ff88', boxShadow: '3px 3px 0 #44ff88',
-                          cursor: updating === order.id ? 'not-allowed' : 'pointer',
-                          opacity: updating === order.id ? 0.5 : 1,
-                        }}
+                        className="btn-elegant btn-primary py-3 px-8 text-xs"
                       >
-                        ✅ {updating === order.id ? 'MEMPROSES...' : 'APPROVE & AKTIFKAN DOWNLOAD'}
+                        {updating === order.id ? 'MEMPROSES...' : 'APPROVE & AKTIFKAN'}
                       </button>
                     )}
                     {order.status === 'paid' && (
                       <button
                         onClick={() => handleStatusChange(order.id, 'completed')}
                         disabled={updating === order.id}
-                        style={{
-                          fontFamily: 'Bangers, cursive', letterSpacing: '0.08em', fontSize: '1rem',
-                          padding: '0.5rem 1.2rem',
-                          background: '#4488ff', color: '#0A0A0A',
-                          border: '3px solid #88bbff', boxShadow: '3px 3px 0 #88bbff',
-                          cursor: 'pointer',
-                        }}
+                        className="btn-elegant bg-blue-600 hover:bg-blue-500 text-white py-3 px-8 text-xs"
                       >
-                        📦 TANDAI SELESAI
+                        TANDAI SELESAI
                       </button>
                     )}
                     {(order.status === 'pending' || order.status === 'paid') && (
                       <button
                         onClick={() => handleStatusChange(order.id, 'cancelled')}
                         disabled={updating === order.id}
-                        style={{
-                          fontFamily: 'Bangers, cursive', letterSpacing: '0.08em', fontSize: '1rem',
-                          padding: '0.5rem 1rem',
-                          background: 'transparent', color: '#ff8888',
-                          border: '3px solid #ff4444',
-                          cursor: 'pointer',
-                        }}
+                        className="btn-elegant btn-outline border-red-500/20 text-red-500 hover:bg-red-500/10 py-3 px-8 text-xs"
                       >
-                        ❌ BATALKAN
+                        BATALKAN
                       </button>
                     )}
                   </div>
@@ -200,15 +218,18 @@ export default function AdminOrdersClient({ initialOrders }: { initialOrders: Ad
           )
         })}
       </div>
-    </>
+    </div>
   )
 }
 
-function InfoBlock({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function InfoBlock({ icon, label, value }: { icon: any; label: string; value: string }) {
   return (
-    <div>
-      <div style={{ fontFamily: 'Bangers, cursive', color: '#AAAAAA', letterSpacing: '0.06em', fontSize: '0.75rem', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontFamily: mono ? 'JetBrains Mono, monospace' : 'Comic Neue, cursive', color: '#F5F5F0', fontSize: '0.88rem', wordBreak: 'break-all' }}>{value}</div>
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-2 text-zinc-600 uppercase tracking-widest text-[10px] font-bold">
+        {icon}
+        {label}
+      </div>
+      <div className="text-sm font-bold text-white truncate">{value}</div>
     </div>
   )
 }

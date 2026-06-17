@@ -1,46 +1,38 @@
 "use client";
 
-// ============================================
-// RAVEN STORE — LOADING STATE COMPONENTS
-// Consistent loading UI across all pages
-// ============================================
-
 import React from "react";
 import { cn } from "@/lib/utils";
+import { Loader2, AlertCircle, Inbox } from "lucide-react";
 
-// ============================================
-// SKELETON — generic block
-// ============================================
 export function Skeleton({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("comic-skeleton rounded-[2px]", className)}
+      className={cn("bg-white/5 animate-pulse rounded-xl", className)}
       {...props}
     />
   );
 }
 
-// ============================================
-// PRODUCT GRID SKELETON
-// ============================================
 export function ProductGridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="bg-surface border-[4px] border-surface rounded-[2px] overflow-hidden"
-          style={{ animationDelay: `${i * 0.05}s` }}
+          className="glass-card p-6 bg-zinc-900/40 border-white/5"
         >
-          <Skeleton className="aspect-video" />
-          <div className="p-4 space-y-3">
+          <Skeleton className="aspect-video mb-6" />
+          <div className="space-y-4">
             <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-5 w-4/5" />
-            <Skeleton className="h-4 w-3/5" />
-            <Skeleton className="h-6 w-2/5" />
+            <Skeleton className="h-8 w-4/5" />
+            <Skeleton className="h-4 w-full" />
+            <div className="pt-4 flex justify-between items-center">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-10 w-24" />
+            </div>
           </div>
         </div>
       ))}
@@ -48,26 +40,22 @@ export function ProductGridSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
-// ============================================
-// ORDER LIST SKELETON
-// ============================================
 export function OrderListSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="space-y-4">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="bg-surface border-[4px] border-surface rounded-[2px] p-4"
+          className="glass-card p-6 bg-zinc-900/40 border-white/5"
         >
-          <div className="flex items-start gap-4">
+          <div className="flex items-center gap-6">
             <Skeleton className="w-16 h-16 flex-shrink-0" />
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-6 w-48" />
             </div>
-            <div className="space-y-2 text-right">
-              <Skeleton className="h-5 w-20" />
+            <div className="space-y-3 text-right">
+              <Skeleton className="h-6 w-24 ml-auto" />
               <Skeleton className="h-4 w-16 ml-auto" />
             </div>
           </div>
@@ -77,38 +65,24 @@ export function OrderListSkeleton({ count = 3 }: { count?: number }) {
   );
 }
 
-// ============================================
-// FULL PAGE LOADING
-// For Suspense fallback on page-level
-// ============================================
 export function PageLoading({ text = "Memuat..." }: { text?: string }) {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
-      {/* Animated ink blot */}
       <div className="relative">
-        <div
-          className="w-16 h-16 border-[4px] border-border rounded-full animate-loader-spin"
-          style={{
-            borderTopColor: "transparent",
-            boxShadow: "3px 3px 0px #E8E8E0",
-          }}
-        />
+        <Loader2 className="w-12 h-12 text-accent-light animate-spin" />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-display text-accent text-xl">R</span>
+          <span className="text-[10px] font-black text-white">R</span>
         </div>
       </div>
-      <p className="font-display text-lg tracking-widest text-text-secondary">
-        {text.toUpperCase()}
+      <p className="text-xs font-bold tracking-[0.3em] text-zinc-500 uppercase">
+        {text}
       </p>
     </div>
   );
 }
 
-// ============================================
-// EMPTY STATE
-// ============================================
 interface EmptyStateProps {
-  icon?: string;
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   action?: React.ReactNode;
@@ -116,7 +90,7 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  icon = "📭",
+  icon = <Inbox size={48} />,
   title,
   description,
   action,
@@ -125,24 +99,18 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-16 px-4",
+        "flex flex-col items-center justify-center text-center py-20 px-6 glass-card bg-zinc-900/20 border-dashed border-2 border-white/5",
         className
       )}
     >
-      <div
-        className={cn(
-          "w-24 h-24 flex items-center justify-center text-5xl mb-6",
-          "bg-surface border-[4px] border-border shadow-comic",
-          "rounded-[2px]"
-        )}
-      >
+      <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-zinc-600 mb-8 border border-white/5">
         {icon}
       </div>
-      <h3 className="font-display text-2xl tracking-wider text-text-primary mb-2">
+      <h3 className="text-2xl font-black text-white tracking-tighter mb-3">
         {title.toUpperCase()}
       </h3>
       {description && (
-        <p className="font-body text-text-secondary max-w-sm mb-6">
+        <p className="text-zinc-500 font-medium max-w-sm mb-8">
           {description}
         </p>
       )}
@@ -151,9 +119,6 @@ export function EmptyState({
   );
 }
 
-// ============================================
-// ERROR STATE
-// ============================================
 interface ErrorStateProps {
   title?: string;
   description?: string;
@@ -170,30 +135,23 @@ export function ErrorState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-16 px-4",
+        "flex flex-col items-center justify-center text-center py-20 px-6 glass-card bg-red-500/5 border-red-500/10",
         className
       )}
     >
-      <div
-        className={cn(
-          "w-24 h-24 flex items-center justify-center text-5xl mb-6",
-          "bg-[#2A0A0A] border-[4px] border-[#FF4444]",
-          "shadow-[5px_5px_0px_#FF4444]",
-          "rounded-[2px]"
-        )}
-      >
-        ⚠️
+      <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center text-red-500 mb-8 border border-red-500/20">
+        <AlertCircle size={40} />
       </div>
-      <h3 className="font-display text-2xl tracking-wider text-[#FF4444] mb-2">
+      <h3 className="text-2xl font-black text-red-500 tracking-tighter mb-3">
         {title.toUpperCase()}
       </h3>
-      <p className="font-body text-text-secondary max-w-sm mb-6">
+      <p className="text-zinc-500 font-medium max-w-sm mb-8">
         {description}
       </p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-5 py-2 font-display text-base tracking-widest bg-accent text-background border-[3px] border-border shadow-[3px_3px_0px_#E8E8E0] rounded-[2px] hover:-translate-x-[1px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0px_#E8E8E0] transition-[transform,box-shadow] duration-150"
+          className="btn-elegant bg-red-500 text-white hover:bg-red-600 py-3 px-8 text-xs"
         >
           COBA LAGI
         </button>
@@ -202,15 +160,11 @@ export function ErrorState({
   );
 }
 
-// ============================================
-// INLINE SPINNER
-// ============================================
 export function Spinner({ size = 16, className }: { size?: number; className?: string }) {
   return (
-    <span
-      className={cn("inline-block rounded-full border-[2px] border-current border-t-transparent animate-loader-spin", className)}
-      style={{ width: size, height: size }}
-      aria-label="Loading"
+    <Loader2 
+      className={cn("animate-spin", className)} 
+      size={size}
     />
   );
 }
